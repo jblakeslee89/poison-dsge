@@ -1,0 +1,38 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+*.egg-info/
+
+# Julia build artifacts
+.CondaPkg/
+*.jl.cov
+*.jl.mem
+
+# LaTeX build artifacts (keep .tex and .pdf)
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
+*.nav
+*.snm
+*.vrb
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# OS-generated large files
+*.DS_Store

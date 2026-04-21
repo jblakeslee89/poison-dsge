@@ -1,0 +1,7 @@
+[deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+MAT = "23992714-dd62-5051-b70f-ba57cb901cac"
+MacroModelling = "687ffad2-3618-405e-ac50-e0f7b9c75e44"
+Parquet2 = "98572fba-bba0-415d-956f-fa77e587d26d"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"

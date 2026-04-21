@@ -1,0 +1,7 @@
+regime,objective,A_star,ρ_star,expected_utility
+naive (K=1.0),(a) cumulative |Δi|,0.9,0.9,99.87531210017532
+naive (K=1.0),(b) var(π) damage,1.1,0.9,12.159837963335644
+naive (K=1.0),(c) var(ygap) damage,1.1,0.9,0.16885422180857776
+filter (K=0.025),(a) cumulative |Δi|,0.9,0.9,19.22091841058406
+filter (K=0.025),(b) var(π) damage,1.1,0.9,0.3690284222155573
+filter (K=0.025),(c) var(ygap) damage,2.9,0.0,0.002158916768252796
