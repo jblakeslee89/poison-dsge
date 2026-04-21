@@ -1,0 +1,217 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{amsmath, amssymb, mathtools}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{quoting}
+\usepackage{hyperref}
+
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{0.6em}{}
+\setlist{itemsep=3pt, topsep=4pt}
+
+\hypersetup{colorlinks=true, linkcolor=blue!50!black,
+            urlcolor=blue!50!black, citecolor=blue!50!black}
+
+\title{\Large\textbf{Adversarial Nowcasting and Monetary Policy:\\A Plain-Language Companion}}
+\author{John Blakeslee}
+\date{April 2026}
+
+\begin{document}
+\maketitle
+
+\begin{quoting}\small\noindent
+This is a companion document to a technical methodology brief on the same subject. The technical version has the equations, the calibration tables, and the formal robustness checks. This version is written for a different reader: a policymaker, a journalist, a congressional staffer, or an economist outside the narrow monetary-policy modeling community who wants to understand the argument without first parsing a New Keynesian DSGE. Everything claimed here is backed up by the model and code in the companion repository; the prose walks through the logic rather than the math.
+\end{quoting}
+
+\section{The problem, in one page}
+
+Picture a Federal Reserve staffer on the Monday before an FOMC meeting. A dashboard on her screen shows a real-time estimate of where the economy is sitting relative to its potential, assembled from scraped price data, credit-card transaction aggregates, satellite photos of shipping ports, and sentiment indicators pulled from social media and earnings calls. The Fed doesn't wait for the Bureau of Economic Analysis to publish quarterly GDP anymore. It can't afford to. By the time the official numbers arrive, the economic moment has already passed, sometimes catastrophically, as it did in 2008. So the Fed uses these ``nowcasts,'' machine-learning models that synthesize alternative data to estimate in real time where output and inflation are heading.
+
+Now ask one question: what if a hostile state systematically injects false data into the pipeline that feeds those nowcasts?
+
+This is not a thought experiment. In 2024 and 2025, a Russian operation known as Pravda published roughly 3.6 million auto-generated articles designed specifically to contaminate the training and retrieval data that powers Western large language models. An independent audit by the press-credibility service NewsGuard found that one-third of the major AI chatbots tested would regurgitate Kremlin narratives on the war in Ukraine, with some citing Pravda's URLs directly. The operation worked. It proved that a state with the right combination of patience, budget, and technical skill can shape the outputs of machine-learning systems by sustained contamination of their input streams.
+
+The Fed's nowcast pipeline looks, from an attacker's perspective, a lot like an LLM pipeline. It ingests public-web data. The ingestion is automated. The validation is thin. The stakes of a successful attack are enormous: a few basis points of unnecessary rate cut across several quarters is tens of billions of dollars of misallocated capital, and it is the sort of distortion that a foreign government trying to destabilize the US financial system might reasonably covet.
+
+This companion brief walks through a formal economic model of what would happen if such an attack succeeded. It is built on top of a standard New Keynesian framework of the sort the Fed itself uses for policy analysis, extended to capture the behavior of a strategic adversary and a Fed trying to defend against that adversary. The technical version of the argument is available in the companion methodology brief. This version tells the story.
+
+\section{What is nowcasting, and why has the Fed adopted it?}
+
+Central banks have always been forced to make decisions on the basis of imperfect information. Gross domestic product is reported quarterly, and the first release is revised substantially as better data comes in. Inflation is reported monthly. The unemployment rate is monthly but surveys a limited sample. During ordinary economic conditions, the gap between what policymakers see and what the economy is actually doing is manageable. During crises, the gap becomes the crisis.
+
+The 2008 financial collapse was the canonical example. The initial GDP report for the fourth quarter of 2008 understated the actual contraction by roughly five percentage points. By the time revisions arrived, the Fed had already spent months in a too-cautious posture. A similar story explains the 1970s ``Great Inflation'': real-time estimates of how much slack the economy had were badly wrong, and the Fed, reading those estimates, kept rates hundreds of basis points below where they should have been. Research by Athanasios Orphanides documents these episodes in detail and shows that real-time output gap estimates can deviate from the final revised estimates by as much as two hundred basis points.
+
+Nowcasting exists to close this gap. Rather than wait for the BEA to collect and publish quarterly data, machine-learning models synthesize high-frequency signals from across the economy: credit-card purchase aggregators like Truflation and Homebase, retailer-side scraped price indices, job-posting counts from LinkedIn and Indeed, satellite images of port activity, earnings-call transcripts analyzed for sentiment, Google Trends queries for ``layoffs'' and ``mortgage,'' and many more. These models deliver daily or weekly estimates of where key economic aggregates are headed. The Bank for International Settlements has documented the accelerating adoption of these techniques at major central banks in its recent annual reports.
+
+The tradeoff is stark. Traditional statistics are slow but secure. They come through secure government pipelines, are processed by career statisticians with institutional oversight, and are difficult for any outside actor to tamper with. Nowcasts are fast but exposed. They pull from the open web. Most of the data streams they consume have minimal authentication and no audit trail. An attacker who can place false data into one of those streams has a direct, albeit narrow, lever on the Fed's real-time perception of the economy.
+
+\section{Why data poisoning of nowcasts is plausible}
+
+Three facts together make this concern serious.
+
+The first fact is that data poisoning works in adjacent settings. A substantial academic literature on adversarial machine learning has documented, over nearly a decade, that carefully crafted false inputs can systematically shift a model's outputs even when they constitute a tiny fraction of the training or retrieval corpus. Work by Battista Biggio, Jacob Steinhardt, and others has shown concrete attacks against classification systems, recommendation engines, and language models. The techniques are no longer theoretical.
+
+The second fact is that the Pravda operation moved these techniques from laboratory to live deployment. The American Sunlight Project, a US nonprofit, uncovered a network of roughly 150 websites, operated out of Moscow, that were publishing 3.6 million articles per year of auto-generated content. The sites had essentially no human readership. Their traffic patterns were wrong for an audience-facing news operation. What the sites did have was enormous surface area on the open web and consistent Pravda branding, both features that make content easier for machine-learning retrievers to surface. NewsGuard's audit confirmed the intended effect: major commercial chatbots from OpenAI, Anthropic, Google, and others would cite Pravda articles as sources for factual claims about the war in Ukraine.
+
+The third fact is that the Fed's nowcast ingestion resembles, in many specifics, the LLM ingestion that Pravda successfully attacked. Both pull from public web sources. Both are automated. Both treat the data they collect with limited validation. The difference is that the Fed's pipeline is pulling economic signals rather than narrative content, and the adversary would be optimizing for a different objective: not belief manipulation but monetary-policy distortion. The machinery is the same.
+
+It is worth being explicit about the attacker being modeled here. The relevant adversary is a capable state actor with sustained budget and the technical sophistication to operate a multi-year information operation against a high-value target. That is a small set of countries, but not an empty one. The attacker's objective is not political persuasion. It is policy distortion: pushing Fed rates in a direction that creates economic pressure inside the United States, or introducing policy uncertainty that degrades US decision-making during a geopolitical crisis. The Pravda precedent shows the technical feasibility. The incentive structure is straightforward.
+
+\section{What this study actually does}
+
+This project began with a 2025 policy memo written for a RAND macroeconomics course. The memo built a simple three-equation model of the US economy, injected a one-percentage-point ``attack'' into the Fed's perceived output gap, and traced what happened to the policy rate. The surprising finding was that the Fed's response was the opposite of what one might naively expect. Instead of raising rates in response to the apparent overheating, the model predicted a small rate cut, because forward-looking inflation expectations shifted downward sharply enough to tighten real rates without any nominal movement.
+
+That finding was provocative, and it attracted the attention of readers with strong mathematical backgrounds who wondered whether the result was an artifact of the simple model. This brief rebuilds the analysis on a far more realistic foundation and tests that question directly. The answer is nuanced. The headline sign-flip the original memo identified is fragile: it depends on an assumption about consumption behavior that most empirical studies reject. Turning on that assumption in its empirically supported form makes the Fed's initial response a small hike rather than a small cut. But the underlying phenomenon, the attacker's ability to systematically distort Fed policy through sustained manipulation of the nowcast signal, survives the upgrade and is in fact larger than the original memo implied when measured over the full 8-quarter horizon that matters for real economic outcomes. The story is better than the original memo told, not because the memo was wrong in its instinct, but because the realistic version of the story has a different and more worrying shape.
+
+What follows is a guided tour through the models used, the findings produced, and what they imply for US monetary-policy defense.
+
+\section{The original model, in intuition}
+
+The three-equation New Keynesian model of the original memo is a workhorse of monetary economics. The three equations represent, respectively, how inflation depends on expected future inflation and current economic slack; how economic activity depends on the gap between today's real interest rate and a ``natural'' rate; and how the Fed sets its nominal interest rate in response to what it perceives about inflation and the output gap.
+
+The key feature of this model, for the attack question, is that inflation is forward-looking. Households and firms today form expectations about future inflation rationally, based on what they expect the Fed to do next. Those expectations feed back into today's pricing and wage decisions. In a fully forward-looking model, expectations do most of the work of monetary transmission, and the Fed's actual nominal rate movements are almost epiphenomenal.
+
+Now consider what happens when an attacker biases the Fed's perceived output gap upward by one percentage point. The Fed looks at its dashboard, sees an economy that appears overheated, and under a mechanical application of the Taylor rule would raise rates by roughly fifty basis points. But in a fully forward-looking model, households and firms are watching the same dashboard (or more precisely, they are forming rational expectations about what the Fed will do, given the data the Fed sees). They anticipate the hike. They also anticipate the demand cooling that such a hike would produce. That cooling appears as a drop in expected future inflation. Today's inflation, which depends mostly on today's expectation of tomorrow's inflation, falls. Real rates, which are nominal rates minus expected inflation, tighten even if nominal rates haven't moved yet. The Fed discovers that the policy goal has already been partly achieved without any action. The model, run through to its equilibrium, produces a small \emph{cut} in the nominal rate instead of the hike the Taylor rule seemed to dictate.
+
+The original memo's headline finding, that a +1pp attack flips a 50 bp hike into a 1-2 bp cut, is the textbook New Keynesian answer to the question, ``what if the Fed's perception is biased upward?'' It is correct as far as it goes. What it leaves out is that the textbook New Keynesian model does not fit the US economy very well, and the ways it fails to fit the US economy are exactly the ways that matter for this question.
+
+\section{What a realistic model adds}
+
+Three features, each motivated by two decades of empirical work on how the US economy actually behaves, separate the textbook model from what most central bank modelers today would treat as a serious representation of the economy. They are associated with work by Frank Smets and Raf Wouters, Lawrence Christiano, Martin Eichenbaum, Charles Evans, Marco Del Negro, and a broader community of applied macroeconomists who have estimated these features repeatedly on US data.
+
+\paragraph{Consumption habit.} In the textbook model, households respond to any change in expected lifetime income by adjusting today's consumption. In reality, households respond much more slowly. People get used to a level of consumption, and they smooth their spending not just across the future but also against what they were spending yesterday. This is captured in the ``habit formation'' parameter, which in empirical studies of the US economy takes a value around 0.7. The interpretation: when the Fed appears to hike rates, households expect weaker future demand, but their actual spending today barely moves because they are anchored to yesterday's spending.
+
+\paragraph{Price indexation.} In the textbook model, every firm that can change its price does so optimally, based on fully forward-looking expectations. In reality, a large fraction of prices are set by simple indexation rules. Union wage contracts adjust by last year's inflation. Service prices at many firms update once a year on a fixed schedule. In the estimated version of the model, roughly half of all price-setting behavior is mechanical indexation to lagged inflation rather than optimal forward-looking choice. This matters because it dampens the forward-looking inflation-expectations channel that the textbook model relies on.
+
+\paragraph{Interest rate smoothing.} In the textbook model, the Fed responds to each new piece of information with a full, immediate adjustment of the policy rate. In reality, the Fed moves gradually. A coefficient around 0.7 is typical in estimated Taylor rules: the rate adjusts by thirty percent of what the Taylor rule would mechanically dictate in any given meeting, with the rest carried forward. The interpretation is partly about avoiding financial market disruption and partly about maintaining policy credibility through commitment.
+
+Each of these features individually makes sense as a description of US macroeconomic behavior. Each is standard in every serious central-bank DSGE model used for policy analysis. None of them was in the original memo. All three were added to the rebuilt model.
+
+\section{What changed when we turned on realistic frictions}
+
+The cleanest way to see the effect is to add the frictions one at a time and watch what happens to the headline sign-flip. Table \ref{tab:frictions} reports the impact response of the policy rate to a +1\(\sigma\) attack on the perceived gap, as each friction is turned on.
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{lr}
+\toprule
+Specification & Impact policy-rate response (bp) \\
+\midrule
+Textbook (no frictions)     & $-1.71$ \\
+With price indexation       & $-3.28$ \\
+With consumption habit      & $+18.15$ \\
+With interest-rate smoothing & $-0.66$ \\
+With all three together     & $+4.79$ \\
+\bottomrule
+\end{tabular}
+\caption{How each friction affects the immediate policy-rate response to a +1\(\sigma\) attack shock. Consumption habit flips the sign; indexation and smoothing do not. Under all three simultaneously, the impact is a mild hike.}
+\label{tab:frictions}
+\end{table}
+
+The pattern rewards a careful reading. Adding price indexation, which the original model lacked, actually makes the cut \emph{larger}, because indexation makes inflation more persistent and therefore more responsive to the expectations channel. Interest-rate smoothing attenuates but does not change the sign. Consumption habit, however, flips the sign entirely. The reason is that habit blunts the expected-demand channel that the textbook sign-flip depended on. In the textbook model, a perceived hike triggers expected weaker demand, which suppresses inflation expectations, which tightens real rates enough that the Fed needn't hike nominally. With habit, that expected demand weakening is muted, because households' spending is anchored. The Taylor rule's mechanical instinct to hike now dominates.
+
+Under all three realistic frictions together, the initial response is a small hike, not a small cut. The original memo's headline sign-flip does not survive.
+
+\section{The delayed attack is worse}
+
+That is not the end of the story. If one looks only at the impact period, the realistic model appears to say that the attack produces a small hike: the opposite of the original memo but similar in magnitude. What happens next is what matters.
+
+Under the realistic model, the 8-quarter policy-rate response to the attack looks like this:
+
+\begin{center}
+\small
+\begin{tabular}{lrrrrrrrr}
+\toprule
+Quarter & Q0 & Q1 & Q2 & Q3 & Q4 & Q5 & Q6 & Q7 \\
+\midrule
+Rate response (bp) & $+4.8$ & $+1.4$ & $-3.4$ & $-6.7$ & $-8.1$ & $-8.0$ & $-7.1$ & $-5.8$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The initial small hike is followed by four consecutive quarters of cuts in the six-to-eight basis-point range. Cumulatively, over two years, the attack produces roughly thirty-four basis points of downward pressure on the policy rate. For comparison, the original memo's toy model, with its clean impact sign-flip, produced only about seven basis points of cumulative distortion over the same horizon.
+
+The realistic model says, in effect: \emph{the attack is about five times more damaging than the original memo implied, but the damage is delayed and spread out}. The original memo described a sharp, identifiable moment of perverse policy. The realistic model describes a drawn-out, harder-to-detect pattern of policy drift. An analyst watching the Fed's response in real time would see a small hike, then a quiescent period, then a steady accumulation of cuts over the following year. None of those individual movements would look obviously like the product of an attack. Over the full horizon, the policy rate would end up meaningfully below where it should have been. The effect on real economic outcomes, such as inflation overshoots or asset-price distortions, would accumulate in step.
+
+This reframes the defense problem. A short, sharp manipulation that triggers a visibly wrong policy response might be easy to detect and reverse. A sustained, low-amplitude manipulation that produces a slow policy drift is much harder to catch.
+
+\section{Persistence is the attacker's most valuable variable}
+
+If a sustained attack is more dangerous than a brief one, it follows that the attacker's most valuable lever is persistence: how long the contamination goes undetected and uncorrected. A parameter sweep confirms this. Across a grid of 400 combinations of consumption-habit strength and attack persistence, the cumulative policy-rate distortion is almost entirely determined by attack persistence. The frontier for ``the attack bites cumulatively'' is nearly vertical: attacks with persistence above roughly 0.7 produce substantial cumulative distortion regardless of other parameters.
+
+Why does persistence matter so much? The mathematics is straightforward. An attack with persistence $\rho$ has cumulative force proportional to $1/(1-\rho)$. An attack at persistence 0.5 has cumulative force of $2$. An attack at 0.8 has cumulative force of $5$. An attack at 0.95 has cumulative force of $20$. The attacker's cost, by contrast, scales linearly with persistence: longer attacks are linearly more likely to be detected by anomaly-monitoring systems, but the damage they produce scales super-linearly. This is a straightforward cost-benefit argument and it says that a capable attacker will push persistence to whatever ceiling the detection environment imposes.
+
+The policy implication is already sharp at this point: defense measures that attack \emph{persistence} are structurally more leveraged than defense measures that attack \emph{magnitude}. Cutting the detection lag from, say, six months to six weeks compresses $1/(1-\rho)$ by an order of magnitude. Capping the maximum attack size the Fed will tolerate before flagging has a much smaller effect on cumulative damage.
+
+\section{Can the Fed defend itself? The filter}
+
+The cleanest defense the Fed can implement unilaterally, without negotiating with upstream data providers, is to filter the nowcast signal. Instead of responding to the raw perceived gap (which is the true gap plus measurement noise plus any attack contamination), the Fed responds to a weighted average of the raw signal and its own model-based prior about the gap. The weighting parameter, which we call $K$, ranges from 0 to 1. At $K=1$, the Fed takes the raw signal at face value: the textbook ``naive Fed.'' At $K=0$, the Fed ignores the signal entirely and relies purely on its internal model of the economy.
+
+Filtering has an obvious defensive benefit. The more weight the Fed places on its own prior and the less on the contaminated signal, the less leverage an attacker has. It also has an obvious cost. If the Fed ignores legitimate movements in the economy, it will fail to respond to real shocks when they arrive. The tradeoff between defense under attack and responsiveness under normal conditions is a classic robustness-versus-efficiency problem, studied most extensively by Lars Svensson and Michael Woodford in the monetary-policy literature.
+
+Our model allows us to calculate, for any given $K$, the Fed's welfare loss (a standard measure combining variance in inflation and variance in the output gap) under two scenarios: attack active, and no attack. Figure 1 shows the result. At $K=1$ (the naive Fed), welfare loss is low under no attack but very high under attack. At $K$ near zero (the heavy filter), welfare loss is moderate under no attack and also moderate under attack. Somewhere in between, there is a crossover: below that crossover, the naive Fed is better in expectation; above it, the filtering Fed is better.
+
+The crossover is the Fed's perceived probability of an active attack. If the Fed thinks the chance of an active data-poisoning campaign is low, the expected cost of filtering exceeds the expected benefit. If the Fed thinks the chance is high, filtering pays. The precise threshold at which filtering becomes optimal depends on how steep the Phillips curve is (how much inflation responds to economic slack) and on how the welfare loss weights inflation against output-gap variability. Under the empirically plausible range for these parameters, the threshold is roughly twenty-two to twenty-six percent.
+
+That is the policy-relevant number. A Fed that estimates the probability of an active, state-sponsored data-poisoning attack against its nowcast infrastructure at more than roughly one-in-four should filter aggressively. Below that threshold, the cost of reduced responsiveness to legitimate data exceeds the benefit of reduced exposure to contamination.
+
+\section{The strategic attacker: what filtering does and does not accomplish}
+
+A natural question is whether filtering actually \emph{deters} an attack, or whether it just reduces the damage of an attack that happens anyway. To answer this rigorously, we model the attacker as an optimizing agent: someone who chooses the magnitude and persistence of their attack to maximize expected damage to the US economy, subject to a cost (greater magnitude and longer persistence raise the probability of detection and retaliation).
+
+The result is that filtering is predominantly a damage reducer, not a deterrent. Under the most policy-relevant attacker objectives, pushing the Fed's policy rate in a particular direction, or amplifying inflation volatility, the attacker's optimal choice of magnitude and persistence is the \emph{same} under a naive Fed and a filtering Fed. Filtering does not change the attack. It just reduces the damage the attack produces, by about eighty-four percent in expected-utility terms.
+
+This is not a minor distinction. A damage reducer is valuable; it is just less valuable than a deterrent would be. A deterrent would shift the attacker toward attacks that are either smaller, less persistent, or easier to detect, and might dissuade the attack from happening in the first place. Filtering does none of those. An attacker facing a filtering Fed receives about one-sixth of the expected payoff they would receive facing a naive Fed, but has the same incentive to attack.
+
+What does attack the attacker's incentives? Measures that raise the cost of sustained attacks. Public logging of nowcast inputs, so that crowd-sourced auditors can flag suspicious patterns. Cryptographic signing of data feeds at ingestion, so that tampering shows up in the audit trail. Real-time anomaly detection that cuts the detection lag and therefore the feasible persistence of an attack. These measures reduce the $\rho$ in $1/(1-\rho)$ and therefore reduce the cumulative damage of \emph{any} attack, which shifts the attacker's cost-benefit calculation in a way that filtering does not.
+
+There is one exception to the ``filtering does not deter'' finding. If the attacker's objective is specifically to increase volatility in the output gap (as opposed to pushing the policy rate or destabilizing inflation expectations), filtering does shift the attacker's optimum. The attacker is pushed to very large, short-lived attacks with high detection probability and near-zero realized damage. This is a genuine case of deterrence, but it is a case that is probably not the most realistic attacker objective. A state adversary trying to destabilize the US economy is more likely to care about visible rate-path distortion or inflation volatility, both of which are unshifted by filtering.
+
+\section{What the Fed should do}
+
+Bringing the threads together, this analysis suggests a clear reordering of the three defense measures the original memo proposed.
+
+\paragraph{First-order: detection-latency measures.} A public provenance ledger of nowcast inputs, with crowd-sourced audit capability, reduces the attacker's feasible persistence by shortening the detection window. This is what caught the Pravda operation, which was uncovered by an independent NGO rather than by governmental monitoring. The infrastructure required is not trivial (it involves upstream cooperation from dozens of data providers, contractual changes, and legal review of which inputs can be logged publicly), but the leverage is high. Implementation timeline is twelve to twenty-four months. Cost is modest, primarily staff and infrastructure, plus negotiation cost with providers.
+
+\paragraph{First-order: cryptographic signatures at ingestion.} Signing nowcast inputs with hardware-security-module-backed keys at the point of ingestion makes silent tampering evident in the audit trail. It too attacks the attacker's feasible persistence, by raising the technical cost of sustained contamination. This is an industry-standard best practice for high-value data pipelines and is already used by parts of the European Central Bank's data infrastructure. Unit cost is low (around thirteen thousand dollars per hardware security module, based on 2023 market data), but coordination cost is high: the Fed pulls from many small and mid-sized alt-data providers who would need technical support to adopt signing. Coordination with the ECB and the Bank of England would cut per-provider cost substantially.
+
+\paragraph{Second-order: signal filtering in the Fed's own models.} Filtering is easy to implement (it is an internal model parameter, changeable in weeks), but it is damage mitigation, not deterrence. It should be in the toolkit for conditions where the perceived probability of an active attack is high, but it is not a substitute for the first two measures. Notably, a visibly filtering Fed may face steeper market reactions when it eventually does move, because private agents' own forecasts remain unfiltered. This is a credibility-versus-responsiveness tradeoff that any public commitment to filtering would need to address.
+
+The original memo treated these three measures as roughly symmetric layered defenses. The model says they are not. The first two attack the structure of the attacker's problem. The third mitigates damage conditional on an attack occurring. A well-designed defense strategy pursues all three but prioritizes the first two.
+
+\paragraph{On actionability of the twenty-five percent threshold.}
+A Fed governor cannot credibly walk into an FOMC meeting and declare ``I believe the probability of an active attack is thirty percent.'' The threshold is analytically useful but operationally abstract. A practical trigger framework would link it to observable indicators. Candidate red flags include: divergence between the Fed's internal nowcast and comparable third-party nowcasts run by private banks or academic institutions; detection by external audit of anomalous activity at upstream data providers, of the kind that uncovered the Pravda operation; elevated classified threat intelligence indicating active economic-statecraft operations against the United States. Translating the twenty-five percent threshold into a staff-implementable rulebook is a natural next operational step.
+
+\section{What this analysis does not address}
+
+Several important questions are outside the scope of the model.
+
+The analysis treats the attacker as informed about the Fed's defense choices. In reality, an attacker might have only noisy information about whether the Fed is filtering, or about how aggressively. Modeling the game under incomplete information would use the Kamenica-Gentzkow Bayesian persuasion framework and is a natural next step.
+
+The analysis treats the detection mechanism as a stylized probabilistic function. A richer specification would link detection to the Fed's own filter output, making detection and filtering strategic complements rather than independent instruments.
+
+The analysis treats the Fed as the sole decision-maker. In reality, the Bank of England, the European Central Bank, and the Bank of Japan run comparable nowcast pipelines. Coordinated defense on provenance standards and signature adoption would amplify protection substantially, and the political economy of such coordination is its own research question.
+
+The analysis focuses on a single policy-rate trajectory. Real economic consequences (asset prices, credit flows, exchange rates) are downstream of rates and are not modeled here.
+
+Finally, the specific attack mechanism modeled is data poisoning of the perceived output gap. Other attacks on the Fed's information environment are possible, including attacks on inflation-expectations indicators, on financial-market-based indicators (VIX, yield curves, term premium estimates), and on employment indicators. Each would require its own model.
+
+\section{Closing thought}
+
+Monetary policy has always been conducted under uncertainty about the true state of the economy. What is new is the combination of three things: the Fed's growing reliance on machine-learning nowcasts for real-time signal; the demonstrated capability of state adversaries to contaminate machine-learning pipelines at scale; and the geopolitical incentive for those adversaries to cause US economic distortion. These three together turn a long-standing methodological concern, the noisy-data problem, into a national-security concern.
+
+The model in this study is not a forecast. It is a reasoning device. It says that if such an attack were to occur, the economic consequences would be measurable, the detection problem would be harder than most people expect, and the best defenses are the ones that operate on the attacker's cost function rather than on the damage the attack produces. The most important practical implication is simple: the part of the US government that should be thinking hardest about this problem is not the Federal Reserve's policy staff, it is the Federal Reserve's data-infrastructure team, working in coordination with allied central banks and the US national-security community that is already tracking Russian and Chinese information operations. The defense is technical. The stakes are monetary.
+
+\section*{Further reading}
+
+The formal model, calibration, and robustness checks are in the companion methodology brief, available in the same repository. Source code for the Julia DSGE implementation, the 220-point parameter grid, the strategic-attacker sweep, and the interactive Dash demo is in the same repository. The interactive demo, which lets the reader move sliders across Phillips slope, consumption habit, and filter weight and see the resulting attack-shock responses in real time, is the most direct way to develop intuition for how the tradeoffs in this brief actually work out quantitatively. Key references from the academic literature include Athanasios Orphanides's sequence of papers on real-time data and monetary policy, Lars Svensson and Michael Woodford on indicator-variable policy under noisy information, Jordi Galí's textbook treatment of New Keynesian modeling, Frank Smets and Raf Wouters on the estimated DSGE used as the empirical benchmark here, Kamenica and Gentzkow on Bayesian persuasion, and Battista Biggio's decade-long research program on adversarial machine learning. Full bibliography is in the technical brief.
+
+\end{document}
