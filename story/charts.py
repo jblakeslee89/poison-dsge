@@ -188,7 +188,7 @@ def cumulative_5x_callout(kappa_realistic: float = 0.15,
                           h_realistic: float = 0.7,
                           k_naive: float = 1.0,
                           horizon: int = 8) -> dict:
-    """Compute the 5x cumulative-loss number for the inline stat callout."""
+    """Compute the cumulative-bp diagnostic (kept for backwards compatibility)."""
     def cum_i(k_, h_, K_):
         try:
             s = _irfs_attack.loc[(k_, h_, K_, "i")].sort_values("period")
@@ -203,3 +203,85 @@ def cumulative_5x_callout(kappa_realistic: float = 0.15,
         "ratio": realistic / toy if toy else float("nan"),
         "horizon": horizon,
     }
+
+
+def welfare_ratios(kappa: float = 0.15, h: float = 0.7) -> dict:
+    """Welfare-loss ratios under attack vs no-attack across filter regimes.
+
+    Returns ratios at K=1 (naive), K=0.1 (light filter), K=0 (defended) for
+    the realistic SW posterior calibration. Used for the headline stat.
+    """
+    def ratio_at(K_):
+        try:
+            r = _welfare_idx.loc[(_closest(kappa, sorted(_welfare["κ"].unique())),
+                                  _closest(h, sorted(_welfare["h"].unique())),
+                                  _closest(K_, sorted(_welfare["K_gain"].unique())))]
+            return float(r["L_attack"] / r["L_no_attack"]) if r["L_no_attack"] > 0 else float("nan")
+        except KeyError:
+            return float("nan")
+
+    return {
+        "naive": ratio_at(1.0),
+        "light_filter": ratio_at(0.1),
+        "defended": ratio_at(0.0),
+    }
+
+
+def welfare_compare(kappa: float = 0.15, h: float = 0.7) -> go.Figure:
+    """Side-by-side welfare bars for naive vs defended Fed."""
+    kappa = _closest(kappa, sorted(_welfare["κ"].unique()))
+    h = _closest(h, sorted(_welfare["h"].unique()))
+
+    configs = [
+        ("Naive Fed\n(K = 1.0)", 1.0),
+        ("Light filter\n(K = 0.1)", 0.1),
+        ("Defended Fed\n(K = 0.0)", 0.0),
+    ]
+    L_no, L_yes = [], []
+    for _, K in configs:
+        try:
+            r = _welfare_idx.loc[(kappa, h, _closest(K, sorted(_welfare["K_gain"].unique())))]
+            L_no.append(float(r["L_no_attack"]))
+            L_yes.append(float(r["L_attack"]))
+        except KeyError:
+            L_no.append(0.0); L_yes.append(0.0)
+
+    labels = [c[0] for c in configs]
+
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        name="Without attack",
+        x=labels, y=L_no,
+        marker=dict(color=NAVY),
+        text=[f"{v:.2f}" for v in L_no],
+        textposition="outside",
+        textfont=dict(size=11, color=GRAY_TEXT),
+        hovertemplate="No attack: L = %{y:.3f}<extra></extra>",
+    ))
+    fig.add_trace(go.Bar(
+        name="Under attack",
+        x=labels, y=L_yes,
+        marker=dict(color=RED),
+        text=[f"{v:.2f}" for v in L_yes],
+        textposition="outside",
+        textfont=dict(size=11, color=INK),
+        hovertemplate="Under attack: L = %{y:.3f}<extra></extra>",
+    ))
+    fig.update_layout(
+        barmode="group",
+        title=dict(
+            text="Welfare loss across filter regimes (SW posterior)",
+            font=dict(size=14, color=GRAY_TEXT, family="sans-serif"),
+            x=0, xanchor="left",
+        ),
+        legend=dict(
+            orientation="h", yanchor="bottom", y=1.02,
+            xanchor="right", x=1,
+            font=dict(size=11, color=GRAY_TEXT),
+        ),
+        showlegend=True,
+    )
+    fig = _editorial_layout(fig, height=420)
+    fig.update_layout(showlegend=True)
+    fig.update_yaxes(title_text="Welfare loss L = var(π) + 0.5·var(ygap)")
+    return fig

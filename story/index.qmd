@@ -13,9 +13,10 @@ format:
 import sys, pathlib
 sys.path.insert(0, str(pathlib.Path.cwd()))
 import charts
-stats = charts.cumulative_5x_callout()
-ratio_str = f"{stats['ratio']:.1f}×"
-realistic_bp = f"{abs(stats['realistic_cum']):.0f} bp"
+wr = charts.welfare_ratios()
+naive_ratio_str = f"{wr['naive']:.1f}×"
+light_ratio_str = f"{wr['light_filter']:.1f}×"
+defended_ratio_str = f"{wr['defended']:.1f}×"
 ```
 
 ::: {.hero}
@@ -77,13 +78,13 @@ A standardized data-poisoning shock pushes the Fed's perceived output gap up by 
 :::
 
 ::: {#cr-cumulative}
-**The undershoot is the story.**
+**The cost is what economists call welfare loss, and it more than triples.**
 
-Watch the policy-rate panel from quarter zero out to quarter eight. The line stays below where it should be, the entire time.
+Watch the three lines from quarter zero out to quarter eight. The Fed's policy rate fails to track where it should be. Inflation drifts persistently. The output gap stays open.
 
-Cumulatively, over the eight quarters following the attack, the Fed's policy rate falls roughly 74 basis points short of where the textbook rule would put it. Inflation overshoots. The output gap stays open longer than it should. The frictions did not defend the economy from the attack. They displaced the cost in time.
+Aggregate the deviations across all three through the standard New Keynesian welfare loss function and you get a single number. Under sustained attack with a naive Fed, the loss is `{python} naive_ratio_str` what it would be without the attack. The frictions did not defend the economy. They displaced the cost in time.
 
-A contemporary Fed, ingesting one bad signal at one FOMC meeting, does not over-react now. It under-reacts for two years.
+A contemporary Fed, ingesting one bad signal, does not over-react now. It pays for two years.
 :::
 
 ::: {#cr-defended}
@@ -139,15 +140,22 @@ fig.show()
 
 ::: {.bigstat}
 ::: {.number}
-`{python} realistic_bp`
+`{python} naive_ratio_str`
 :::
 ::: {.label}
-Cumulative undershoot of the Fed's policy rate over eight quarters under the empirical Smets-Wouters calibration when the central bank takes the nowcast signal at face value.
+Welfare loss under sustained attack, relative to the no-attack baseline, when the Fed treats its nowcast at face value. A defended Fed brings the ratio back to `{python} defended_ratio_str`.
 :::
 ::: {.callout-source}
-Author calculations · Smets-Wouters posterior parameters · standardized +1 σ attack shock to perceived output gap
+Author calculations · Smets-Wouters posterior parameters · NK welfare loss L = var(π) + 0.5·var(ygap)
 :::
 :::
+
+```{python}
+#| label: chart-welfare-compare
+#| fig-cap: "Welfare loss with and without attack, across three Fed filter regimes. The defended regime (K = 0) eliminates the attack-induced loss entirely. The cost is that the Fed becomes less responsive to genuine real shocks, raising baseline loss modestly."
+fig = charts.welfare_compare()
+fig.show()
+```
 
 <hr class="section-divider">
 
