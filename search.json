@@ -1,0 +1,156 @@
+[
+  {
+    "objectID": "methodology.html",
+    "href": "methodology.html",
+    "title": "Methodology",
+    "section": "",
+    "text": "The model is a New Keynesian DSGE solved in Julia, validated to machine precision against an original Dynare 6.3 implementation. The full methodology brief is in the project repository as a 30-page LaTeX PDF. This page is a high-level summary; serious readers should go to the brief."
+  },
+  {
+    "objectID": "methodology.html#model",
+    "href": "methodology.html#model",
+    "title": "Methodology",
+    "section": "Model",
+    "text": "Model\nA standard New Keynesian three-equation core, augmented with Smets-Wouters frictions:\n\nIS curve with consumption habit (\\(h\\)): real spending depends on a habit-adjusted Euler equation.\nPhillips curve with price indexation (\\(\\chi_p\\)): half of price-setters mechanically index to lagged inflation.\nTaylor rule with interest rate smoothing (\\(\\rho_i\\)): the Fed adjusts gradually toward its target rate.\n\nThe attack is modeled as a standardized exogenous shock to the Fed’s perceived output gap. The Fed’s perception filter is Kalman-style:\n\\[\\widetilde{ygap}_t = (1 - K) \\cdot \\rho_p \\cdot \\widetilde{ygap}_{t-1} + K \\cdot (ygap_t + \\nu_t + \\text{attack}_t)\\]\nwhere \\(K \\in [0, 1]\\) is the filter weight on the raw nowcast signal. \\(K = 1\\) is a naive Fed that trusts the signal; \\(K = 0\\) is a fully defended Fed that ignores it."
+  },
+  {
+    "objectID": "methodology.html#calibration-grid",
+    "href": "methodology.html#calibration-grid",
+    "title": "Methodology",
+    "section": "Calibration grid",
+    "text": "Calibration grid\nThe 220-point grid sweeps:\n\n\\(\\kappa\\) (Phillips slope) over \\(\\{0.06, 0.10, 0.15, 0.20\\}\\)\n\\(h\\) (habit) over \\(\\{0.0, 0.4, 0.7\\}\\)\n\\(K\\) (filter weight) over \\(\\{0, 0.1, 0.25, 0.5, 0.75, 1.0\\}\\)\n\nEach point is a full DSGE solution (impulse-response functions over 16 quarters, 80-quarter welfare loss, three shocks)."
+  },
+  {
+    "objectID": "methodology.html#welfare-metric",
+    "href": "methodology.html#welfare-metric",
+    "title": "Methodology",
+    "section": "Welfare metric",
+    "text": "Welfare metric\nStandard NK loss function: \\(L = \\text{var}(\\pi) + 0.5 \\cdot \\text{var}(ygap)\\), computed as the sum of squared IRF contributions across the three shocks (productivity, monetary policy, attack)."
+  },
+  {
+    "objectID": "methodology.html#validation",
+    "href": "methodology.html#validation",
+    "title": "Methodology",
+    "section": "Validation",
+    "text": "Validation\nThe Julia implementation (MacroModelling.jl) was validated to machine precision against an original Dynare 6.3 implementation of the same equations. IRF differences across the two solvers are below \\(10^{-10}\\) at all horizons."
+  },
+  {
+    "objectID": "methodology.html#code-and-data",
+    "href": "methodology.html#code-and-data",
+    "title": "Methodology",
+    "section": "Code and data",
+    "text": "Code and data\nAll code is in the project repository. The pre-computed cache used by this story is in results/dash_cache_*.csv; the Julia pre-compute script is scripts/precompute_dash_cache.jl.\nThe full methodology brief is at methodology_brief.pdf. The non-economist companion primer is at companion_primer.pdf."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "If you can fool the Fed’s nowcast, you can move tens of billions of dollars.",
+    "section": "",
+    "text": "A working paper on AI and monetary policy\n\n\n\n\nEvery major central bank now reads the economy in real time through machine-learning models that ingest scraped public-web data. We modeled what happens when an adversary contaminates the inputs.\n\n\nBy John Blakeslee · Updated April 2026"
+  },
+  {
+    "objectID": "index.html#a-new-kind-of-attack-surface",
+    "href": "index.html#a-new-kind-of-attack-surface",
+    "title": "If you can fool the Fed’s nowcast, you can move tens of billions of dollars.",
+    "section": "A new kind of attack surface",
+    "text": "A new kind of attack surface\nThrough the 2010s and 2020s, central banks pushed past the slow drip of official statistics. The Bank for International Settlements has tracked the shift in its annual reports for years. Every major central bank now runs some version of a real-time nowcast pipeline. The pipelines synthesize scraped price data, credit-card transaction aggregates, job-posting feeds, satellite imagery of major ports, and social-media sentiment. They produce daily-frequency estimates of output and inflation, well before the Bureau of Labor Statistics or the Bureau of Economic Analysis publish anything official.\nThese pipelines have a property that traditional government statistics do not. The Bureau of Labor Statistics gathers payroll data through air-gapped survey infrastructure, encrypted transfers, and rigorous internal validation. It is exceedingly difficult to tamper with payroll employment data without detection. A nowcast pipeline ingests the open web. By design.\nIn 2024, the U.S. Treasury Department warned that “data poisoning, data leakage, and data integrity attacks can take place at any stage of the AI development and supply chain.” The same year, a Russian information operation called Pravda showed the world the warning was concrete. The American Sunlight Project documented 3.6 million auto-generated articles published across the network in 2024 alone. The articles were not designed to be read by humans; many of the sites lacked basic functionality. They were designed to be ingested by the large-language models and search summarizers that have begun to source the open web.\nNewsguard ran an independent audit. Across 450 separate prompts to ten of the most popular AI chatbots, those models referenced 92 distinct Pravda articles. One in three returned Kremlin narratives directly. The Russian propagandist John Mark Dougan, on Russian state media, did not bother to obscure the strategy: “By pushing these Russian narratives from the Russian perspective, we can actually change worldwide AI.”\nA central bank’s nowcast pipeline is the same kind of system as a chatbot’s retrieval layer. Less famous, consequential in a way a chatbot is not."
+  },
+  {
+    "objectID": "index.html#the-defense-and-what-it-costs",
+    "href": "index.html#the-defense-and-what-it-costs",
+    "title": "If you can fool the Fed’s nowcast, you can move tens of billions of dollars.",
+    "section": "The defense, and what it costs",
+    "text": "The defense, and what it costs\nSvensson and Woodford showed two decades ago that when economic measurements are especially noisy or uncertain, the optimal policy is to pay them less attention. In the language of the Kalman filter, the central bank should put a smaller weight on the raw signal and a larger weight on its own model-based prior. The same idea applies, exactly, to the data-poisoning case. Filter harder, attack hurts less.\nBut filtering harder also means the Fed is less responsive to genuine shocks. A central bank that ignores its nowcast under attack also ignores it during a real productivity shift, a real demand shock, a real disinflation. The defense has a cost, and the size of the cost depends on what you think the probability of attack actually is."
+  },
+  {
+    "objectID": "index.html#three-policy-pillars",
+    "href": "index.html#three-policy-pillars",
+    "title": "If you can fool the Fed’s nowcast, you can move tens of billions of dollars.",
+    "section": "Three policy pillars",
+    "text": "Three policy pillars\nA defended Fed is the model’s prescription. It is also the easiest reform to implement, because it requires nothing of anyone outside the FOMC. The harder reforms work upstream of the Fed, on the integrity of the data itself. The original memo proposed three.\nCryptographic feed signatures. Every JSON or CSV nowcast feed the Fed ingests should originate from a hardware security module. The HSM holds the signing key in tamper-resistant hardware; NIST treats it as the gold standard for data integrity. The European Central Bank already requires this for its statistical data exchange. The cost is real: a 2023 market survey put the average HSM at thirteen thousand dollars per unit. The benefit is a tamper-evident audit trail that makes silent poisoning attacks much harder to execute.\nUncertainty-adaptive Taylor coefficients. Make the model’s prescription a rule. When the dispersion across nowcast inputs widens, the Fed should automatically down-weight noisy indicators in its policy response. This is exactly the Svensson-Woodford framework operationalized. The risk is recursion: if the dispersion measures themselves can be manipulated, the defense becomes the attack surface.\nPublic provenance ledgers. Publish the full ingestion log: every input, its source, its timestamp, its weight. The Russian Pravda operation was uncovered by the American Sunlight Project, an outside group with no special access. A public ledger lets external auditors do the same job for the Fed. Shayne Longpre and co-authors have argued for a multi-stakeholder data provenance standard “akin to the W3 consortium.” The risk is the inverse of the previous one: full transparency tells adversaries which inputs carry the most policy weight, and lets them target accordingly.\nNo single pillar is sufficient. Together they form the layered defense that the model says is worth paying for."
+  },
+  {
+    "objectID": "SETUP.html",
+    "href": "SETUP.html",
+    "title": "Story site setup — GitHub flow",
+    "section": "",
+    "text": "This is the deployment runbook. Follow it once the GitHub repository exists.\n\n\n# On github.com: create a public repo called `poison-dsge` under your account.\n# Do NOT initialize with README/license/.gitignore (the local repo already has commits).\n\ncd \"/Users/johnpb89/Claude Projects/Econ/poison-dsge\"\ngit remote add origin https://github.com/jblakeslee89/poison-dsge.git\ngit branch -M main\ngit push -u origin main\n\n\n\n\nOn github.com, go to your repo → Settings → Pages.\nUnder “Build and deployment” → Source, choose Deploy from a branch.\nUnder “Branch”, select gh-pages (it will not exist yet — that’s fine; it gets created on first deploy).\nSave.\n\n\n\n\nThe simplest path. Run this once, after you’ve pushed to GitHub:\ncd \"/Users/johnpb89/Claude Projects/Econ/poison-dsge/story\"\nQUARTO_PYTHON=\"$(pwd)/.venv/bin/python\" ~/.local/bin/quarto publish gh-pages\nQuarto will: - Render the site locally - Create the gh-pages branch - Push the rendered HTML to it - Configure GitHub Pages metadata\nThe first time you run this, Quarto asks for confirmation and your GitHub credentials (it uses gh auth if you have GitHub CLI, or git’s credential helper otherwise).\nAfter first publish, the site is live at:\nhttps://jblakeslee89.github.io/poison-dsge/\n(Replace jblakeslee89 if your GitHub username differs.)\n\n\n\nThe repo includes .github/workflows/publish-story.yml. Once enabled:\n\nAny push to main that touches story/** or results/dash_cache_*.csv triggers a build.\nThe workflow installs Quarto and Python, renders the site, and pushes to gh-pages.\nGitHub Pages serves the new version within ~1 minute.\n\nTo enable: on github.com, go to Settings → Actions → General → ensure “Allow all actions and reusable workflows” is selected. Push to main and watch the Actions tab.\n\n\n\ncd story\nQUARTO_PYTHON=\"$(pwd)/.venv/bin/python\" ~/.local/bin/quarto preview\nOpens a live-reload preview at http://localhost:4444. Edit index.qmd or charts.py and the page reloads automatically.\n\n\n\nIf you want poison-dsge.johnblakeslee.com instead of the github.io URL:\n\nBuy/configure DNS at Cloudflare or your registrar of choice.\nAdd a CNAME record pointing poison-dsge.johnblakeslee.com → jblakeslee89.github.io.\nIn story/CNAME (create the file), put the bare domain on one line: poison-dsge.johnblakeslee.com.\nOn github.com → repo → Settings → Pages → Custom domain → enter the domain → Save.\nTick “Enforce HTTPS” once the cert provisions (usually &lt;10 minutes).\n\n\n\n\n\n\n\n\n\n\n\n\nPage\nURL path\nContent\n\n\n\n\nStory\n/\nHero, lede, scrollytelling (3 acts), big-stat callout, methodology note\n\n\nMethodology\n/methodology.html\nModel summary, calibration grid, validation note\n\n\nTry it yourself\n/explore.html\nStatic charts of the three canonical scenarios\n\n\n\n\n\n\nThe dash app’s tour text and the project memory file describe the cumulative undershoot under realistic frictions as “~5× the toy memo’s cumulative distortion.” The current results/dash_cache_*.csv does not support this. Across cumulative windows of 4, 8, 12, and 16 quarters, the realistic-to-toy ratio is consistently 1.4× to 1.7×.\nThe story site uses the verifiable number (“74 bp / about 1.7×”). Before showing this to Wenger, decide whether:\n\nRe-run the precompute with a different parameterization that produces 5× (if there was a calibration drift between the original memo and the current cache);\nUpdate the dash app’s tour text and the memo to match the current 1.7× finding;\nReframe the headline finding around a different ratio that is 5× (e.g., welfare-cost ratio under a specific filter regime, peak deviation, variance ratio).\n\nThe 1.7× cumulative finding is still a meaningful and publishable result. The frame “the attack is worse, not better; it is just displaced in time” survives."
+  },
+  {
+    "objectID": "SETUP.html#create-the-github-repo",
+    "href": "SETUP.html#create-the-github-repo",
+    "title": "Story site setup — GitHub flow",
+    "section": "",
+    "text": "# On github.com: create a public repo called `poison-dsge` under your account.\n# Do NOT initialize with README/license/.gitignore (the local repo already has commits).\n\ncd \"/Users/johnpb89/Claude Projects/Econ/poison-dsge\"\ngit remote add origin https://github.com/jblakeslee89/poison-dsge.git\ngit branch -M main\ngit push -u origin main"
+  },
+  {
+    "objectID": "SETUP.html#enable-github-pages",
+    "href": "SETUP.html#enable-github-pages",
+    "title": "Story site setup — GitHub flow",
+    "section": "",
+    "text": "On github.com, go to your repo → Settings → Pages.\nUnder “Build and deployment” → Source, choose Deploy from a branch.\nUnder “Branch”, select gh-pages (it will not exist yet — that’s fine; it gets created on first deploy).\nSave."
+  },
+  {
+    "objectID": "SETUP.html#first-time-deploy-option-a-from-your-laptop",
+    "href": "SETUP.html#first-time-deploy-option-a-from-your-laptop",
+    "title": "Story site setup — GitHub flow",
+    "section": "",
+    "text": "The simplest path. Run this once, after you’ve pushed to GitHub:\ncd \"/Users/johnpb89/Claude Projects/Econ/poison-dsge/story\"\nQUARTO_PYTHON=\"$(pwd)/.venv/bin/python\" ~/.local/bin/quarto publish gh-pages\nQuarto will: - Render the site locally - Create the gh-pages branch - Push the rendered HTML to it - Configure GitHub Pages metadata\nThe first time you run this, Quarto asks for confirmation and your GitHub credentials (it uses gh auth if you have GitHub CLI, or git’s credential helper otherwise).\nAfter first publish, the site is live at:\nhttps://jblakeslee89.github.io/poison-dsge/\n(Replace jblakeslee89 if your GitHub username differs.)"
+  },
+  {
+    "objectID": "SETUP.html#subsequent-deploys-option-b-automatic-via-github-actions",
+    "href": "SETUP.html#subsequent-deploys-option-b-automatic-via-github-actions",
+    "title": "Story site setup — GitHub flow",
+    "section": "",
+    "text": "The repo includes .github/workflows/publish-story.yml. Once enabled:\n\nAny push to main that touches story/** or results/dash_cache_*.csv triggers a build.\nThe workflow installs Quarto and Python, renders the site, and pushes to gh-pages.\nGitHub Pages serves the new version within ~1 minute.\n\nTo enable: on github.com, go to Settings → Actions → General → ensure “Allow all actions and reusable workflows” is selected. Push to main and watch the Actions tab."
+  },
+  {
+    "objectID": "SETUP.html#iterating-locally",
+    "href": "SETUP.html#iterating-locally",
+    "title": "Story site setup — GitHub flow",
+    "section": "",
+    "text": "cd story\nQUARTO_PYTHON=\"$(pwd)/.venv/bin/python\" ~/.local/bin/quarto preview\nOpens a live-reload preview at http://localhost:4444. Edit index.qmd or charts.py and the page reloads automatically."
+  },
+  {
+    "objectID": "SETUP.html#custom-domain-optional",
+    "href": "SETUP.html#custom-domain-optional",
+    "title": "Story site setup — GitHub flow",
+    "section": "",
+    "text": "If you want poison-dsge.johnblakeslee.com instead of the github.io URL:\n\nBuy/configure DNS at Cloudflare or your registrar of choice.\nAdd a CNAME record pointing poison-dsge.johnblakeslee.com → jblakeslee89.github.io.\nIn story/CNAME (create the file), put the bare domain on one line: poison-dsge.johnblakeslee.com.\nOn github.com → repo → Settings → Pages → Custom domain → enter the domain → Save.\nTick “Enforce HTTPS” once the cert provisions (usually &lt;10 minutes)."
+  },
+  {
+    "objectID": "SETUP.html#whats-in-the-deployed-site",
+    "href": "SETUP.html#whats-in-the-deployed-site",
+    "title": "Story site setup — GitHub flow",
+    "section": "",
+    "text": "Page\nURL path\nContent\n\n\n\n\nStory\n/\nHero, lede, scrollytelling (3 acts), big-stat callout, methodology note\n\n\nMethodology\n/methodology.html\nModel summary, calibration grid, validation note\n\n\nTry it yourself\n/explore.html\nStatic charts of the three canonical scenarios"
+  },
+  {
+    "objectID": "SETUP.html#known-issue-the-5-claim",
+    "href": "SETUP.html#known-issue-the-5-claim",
+    "title": "Story site setup — GitHub flow",
+    "section": "",
+    "text": "The dash app’s tour text and the project memory file describe the cumulative undershoot under realistic frictions as “~5× the toy memo’s cumulative distortion.” The current results/dash_cache_*.csv does not support this. Across cumulative windows of 4, 8, 12, and 16 quarters, the realistic-to-toy ratio is consistently 1.4× to 1.7×.\nThe story site uses the verifiable number (“74 bp / about 1.7×”). Before showing this to Wenger, decide whether:\n\nRe-run the precompute with a different parameterization that produces 5× (if there was a calibration drift between the original memo and the current cache);\nUpdate the dash app’s tour text and the memo to match the current 1.7× finding;\nReframe the headline finding around a different ratio that is 5× (e.g., welfare-cost ratio under a specific filter regime, peak deviation, variance ratio).\n\nThe 1.7× cumulative finding is still a meaningful and publishable result. The frame “the attack is worse, not better; it is just displaced in time” survives."
+  },
+  {
+    "objectID": "explore.html",
+    "href": "explore.html",
+    "title": "Try it yourself",
+    "section": "",
+    "text": "The interactive companion below lets you move three sliders across the model’s parameter space and watch how the attack response changes. The defaults are set to the empirical (Smets-Wouters posterior) calibration.\nThe full interactive demo is hosted separately as a Plotly Dash app. While that app is being deployed, here are static versions of the key configurations:"
+  },
+  {
+    "objectID": "explore.html#the-three-canonical-scenarios",
+    "href": "explore.html#the-three-canonical-scenarios",
+    "title": "Try it yourself",
+    "section": "The three canonical scenarios",
+    "text": "The three canonical scenarios\n\nMemo (toy model, 2025)\n\n\n        \n        \n        \n\n\n                            \n                                            \n\n\nThe original Spring 2025 calibration. Flat Phillips curve, no consumption habit, naive Fed. Produces the headline sign-flip on impact.\n\n\nRealistic (Smets-Wouters posterior)\n\n\n                            \n                                            \n\n\nEmpirical Phillips slope, Smets-Wouters consumption habit, naive Fed. Impact sign-flip attenuates; the cumulative two-year response is the real story.\n\n\nDefended (heavy filter)\n\n\n                            \n                                            \n\n\nRealistic calibration with the Fed ignoring the raw nowcast signal entirely. The attack response collapses."
+  },
+  {
+    "objectID": "explore.html#the-defense-cost-tradeoff",
+    "href": "explore.html#the-defense-cost-tradeoff",
+    "title": "Try it yourself",
+    "section": "The defense-cost tradeoff",
+    "text": "The defense-cost tradeoff\n\n\n                            \n                                            \n\n\nWelfare loss with vs without attack at the realistic-with-light-filter calibration (\\(\\kappa = 0.15\\), \\(h = 0.7\\), \\(K = 0.1\\)). At \\(K = 0\\), the red bar collapses to the blue. But there is a cost: the Fed becomes less responsive to genuine real shocks.\nThe full Dash app (deployed at HuggingFace Spaces when the deployment finalizes) lets you sweep all three sliders and read off the welfare crossover probability live."
+  }
+]
