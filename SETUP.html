@@ -164,11 +164,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <!-- user-provided yaml closeread style options -->
       <style>
         :root {
-          --cr-narrative-font-size: 1.05rem;
---cr-narrative-background-color-overlay: rgba(255, 255, 255, 0.92);
---cr-section-background-color: #fafaf7;
---cr-narrative-text-color-overlay: #1a1a1a;
+          --cr-narrative-text-color-overlay: #1a1a1a;
 --cr-narrative-font-family: -apple-system, BlinkMacSystemFont, ‘Segoe UI’, sans-serif;
+--cr-section-background-color: #fafaf7;
+--cr-narrative-background-color-overlay: rgba(255, 255, 255, 0.92);
+--cr-narrative-font-size: 1.05rem;
         }
       </style>
     
@@ -176,53 +176,70 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="story-site-setup-github-flow" class="level1">
-<h1>Story site setup — GitHub flow</h1>
-<p>This is the deployment runbook. Follow it once the GitHub repository exists.</p>
-<section id="create-the-github-repo" class="level2">
-<h2 class="anchored" data-anchor-id="create-the-github-repo">1. Create the GitHub repo</h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># On github.com: create a public repo called `poison-dsge` under your account.</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Do NOT initialize with README/license/.gitignore (the local repo already has commits).</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> <span class="st">"/Users/johnpb89/Claude Projects/Econ/poison-dsge"</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote add origin https://github.com/jblakeslee89/poison-dsge.git</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> branch <span class="at">-M</span> main</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin main</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="story-site-setup-deploy-runbook" class="level1">
+<h1>Story site setup — deploy runbook</h1>
+<p>The repo is at https://github.com/jblakeslee89/poison-dsge (private). The <code>main</code> branch holds source; the <code>gh-pages</code> branch holds rendered HTML, ready to serve.</p>
+<section id="important-github-pages-limitation-on-private-repos" class="level2">
+<h2 class="anchored" data-anchor-id="important-github-pages-limitation-on-private-repos">Important: GitHub Pages limitation on private repos</h2>
+<p>GitHub Pages does not work on private repos under a free GitHub plan. The push to <code>gh-pages</code> succeeded but enabling Pages returns HTTP 422 (“Your current plan does not support GitHub Pages for this repository”).</p>
+<p>Three options to get a live URL:</p>
+<section id="option-1-make-the-repo-public-simplest-free-immediate" class="level3">
+<h3 class="anchored" data-anchor-id="option-1-make-the-repo-public-simplest-free-immediate">Option 1: Make the repo public (simplest, free, immediate)</h3>
+<p>If there is no sensitive content (and there is not — this is a research project), this is the fastest path.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> repo edit jblakeslee89/poison-dsge <span class="at">--visibility</span> public <span class="at">--accept-visibility-change-consequences</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> api <span class="at">-X</span> POST /repos/jblakeslee89/poison-dsge/pages <span class="at">-f</span> <span class="st">'source[branch]=gh-pages'</span> <span class="at">-f</span> <span class="st">'source[path]=/'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Site is live in ~1 minute at <strong>https://jblakeslee89.github.io/poison-dsge/</strong>.</p>
 </section>
-<section id="enable-github-pages" class="level2">
-<h2 class="anchored" data-anchor-id="enable-github-pages">2. Enable GitHub Pages</h2>
+<section id="option-2-cloudflare-pages-free-keeps-repo-private" class="level3">
+<h3 class="anchored" data-anchor-id="option-2-cloudflare-pages-free-keeps-repo-private">Option 2: Cloudflare Pages (free, keeps repo private)</h3>
 <ol type="1">
-<li>On github.com, go to your repo → <strong>Settings</strong> → <strong>Pages</strong>.</li>
-<li>Under “Build and deployment” → <strong>Source</strong>, choose <strong>Deploy from a branch</strong>.</li>
-<li>Under “Branch”, select <code>gh-pages</code> (it will not exist yet — that’s fine; it gets created on first deploy).</li>
-<li>Save.</li>
+<li>Sign in at dash.cloudflare.com (free account).</li>
+<li><strong>Workers &amp; Pages</strong> → <strong>Create application</strong> → <strong>Pages</strong> → <strong>Connect to Git</strong>.</li>
+<li>Authorize Cloudflare’s GitHub app for the <code>poison-dsge</code> repo only.</li>
+<li>Build settings:
+<ul>
+<li>Production branch: <code>main</code></li>
+<li>Build command: <code>pip install -r story/requirements.txt &amp;&amp; curl -sL https://github.com/quarto-dev/quarto-cli/releases/download/v1.6.43/quarto-1.6.43-linux-amd64.tar.gz | tar -xz &amp;&amp; ./quarto-1.6.43/bin/quarto render story</code></li>
+<li>Build output directory: <code>story/_site</code></li>
+</ul></li>
+<li>Deploy. Site is live at <code>https://poison-dsge.pages.dev</code> (or a custom domain you add later).</li>
 </ol>
+<p>Cloudflare’s free tier supports private GitHub repos, custom domains, and unlimited bandwidth.</p>
 </section>
-<section id="first-time-deploy-option-a-from-your-laptop" class="level2">
-<h2 class="anchored" data-anchor-id="first-time-deploy-option-a-from-your-laptop">3. First-time deploy (option A: from your laptop)</h2>
-<p>The simplest path. Run this once, after you’ve pushed to GitHub:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> <span class="st">"/Users/johnpb89/Claude Projects/Econ/poison-dsge/story"</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="va">QUARTO_PYTHON</span><span class="op">=</span><span class="st">"</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/.venv/bin/python"</span> <span class="ex">~/.local/bin/quarto</span> publish gh-pages</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Quarto will: - Render the site locally - Create the <code>gh-pages</code> branch - Push the rendered HTML to it - Configure GitHub Pages metadata</p>
-<p>The first time you run this, Quarto asks for confirmation and your GitHub credentials (it uses <code>gh auth</code> if you have GitHub CLI, or git’s credential helper otherwise).</p>
-<p>After first publish, the site is live at:</p>
-<p><strong>https://jblakeslee89.github.io/poison-dsge/</strong></p>
-<p>(Replace <code>jblakeslee89</code> if your GitHub username differs.)</p>
+<section id="option-3-github-pro-upgrade-4month" class="level3">
+<h3 class="anchored" data-anchor-id="option-3-github-pro-upgrade-4month">Option 3: GitHub Pro upgrade ($4/month)</h3>
+<p>Upgrades the personal account to support Pages on private repos. Run the same <code>gh api</code> commands as Option 1 once upgraded.</p>
 </section>
-<section id="subsequent-deploys-option-b-automatic-via-github-actions" class="level2">
-<h2 class="anchored" data-anchor-id="subsequent-deploys-option-b-automatic-via-github-actions">4. Subsequent deploys (option B: automatic via GitHub Actions)</h2>
-<p>The repo includes <code>.github/workflows/publish-story.yml</code>. Once enabled:</p>
-<ol type="1">
-<li>Any push to <code>main</code> that touches <code>story/**</code> or <code>results/dash_cache_*.csv</code> triggers a build.</li>
-<li>The workflow installs Quarto and Python, renders the site, and pushes to <code>gh-pages</code>.</li>
-<li>GitHub Pages serves the new version within ~1 minute.</li>
-</ol>
-<p>To enable: on github.com, go to <strong>Settings</strong> → <strong>Actions</strong> → <strong>General</strong> → ensure “Allow all actions and reusable workflows” is selected. Push to <code>main</code> and watch the <strong>Actions</strong> tab.</p>
 </section>
 <section id="iterating-locally" class="level2">
-<h2 class="anchored" data-anchor-id="iterating-locally">5. Iterating locally</h2>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> story</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="va">QUARTO_PYTHON</span><span class="op">=</span><span class="st">"</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/.venv/bin/python"</span> <span class="ex">~/.local/bin/quarto</span> preview</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<h2 class="anchored" data-anchor-id="iterating-locally">Iterating locally</h2>
+<p>The story is fully renderable from your laptop without any of the above. To work on it:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> <span class="st">"/Users/johnpb89/Claude Projects/Econ/poison-dsge/story"</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="va">QUARTO_PYTHON</span><span class="op">=</span><span class="st">"</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/.venv/bin/python"</span> <span class="ex">~/.local/bin/quarto</span> preview</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Opens a live-reload preview at http://localhost:4444. Edit <code>index.qmd</code> or <code>charts.py</code> and the page reloads automatically.</p>
+</section>
+<section id="pushing-updates" class="level2">
+<h2 class="anchored" data-anchor-id="pushing-updates">Pushing updates</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> <span class="st">"/Users/johnpb89/Claude Projects/Econ/poison-dsge"</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add story/</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"Update story"</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Then re-render and re-publish gh-pages:</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> story</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="va">QUARTO_PYTHON</span><span class="op">=</span><span class="st">"</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/.venv/bin/python"</span> <span class="ex">~/.local/bin/quarto</span> render</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /tmp <span class="kw">&amp;&amp;</span> <span class="fu">rm</span> <span class="at">-rf</span> poison-dsge-pages</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone <span class="at">--depth</span> 1 <span class="at">-b</span> gh-pages https://github.com/jblakeslee89/poison-dsge.git poison-dsge-pages</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-rf</span> poison-dsge-pages/<span class="pp">!(</span>.git<span class="pp">)</span>  <span class="co"># clear old content</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> <span class="at">-R</span> <span class="st">"/Users/johnpb89/Claude Projects/Econ/poison-dsge/story/_site/."</span> poison-dsge-pages/</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> poison-dsge-pages/.nojekyll</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> poison-dsge-pages <span class="kw">&amp;&amp;</span> <span class="fu">git</span> add <span class="at">-A</span> <span class="kw">&amp;&amp;</span> <span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"Update site"</span> <span class="kw">&amp;&amp;</span> <span class="fu">git</span> push origin gh-pages</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>(The GitHub Actions workflow at <code>.github/workflows/publish-story.yml</code> automates this once the repo is public or upgraded — but on free private it cannot push to a Pages-served branch since Pages itself is disabled.)</p>
+</section>
+<section id="iterating-locally-1" class="level2">
+<h2 class="anchored" data-anchor-id="iterating-locally-1">5. Iterating locally</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> story</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="va">QUARTO_PYTHON</span><span class="op">=</span><span class="st">"</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span><span class="st">/.venv/bin/python"</span> <span class="ex">~/.local/bin/quarto</span> preview</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Opens a live-reload preview at http://localhost:4444. Edit <code>index.qmd</code> or <code>charts.py</code> and the page reloads automatically.</p>
 </section>
 <section id="custom-domain-optional" class="level2">
