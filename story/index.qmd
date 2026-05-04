@@ -86,14 +86,14 @@ Cumulatively, over the eight quarters following the attack, the Fed's policy rat
 A contemporary Fed, ingesting one bad signal at one FOMC meeting, does not over-react now. It under-reacts for two years.
 :::
 
-::: {#cr-toy}
-**The original toy model said something stranger.**
+::: {#cr-defended}
+**Now turn down the Fed's trust in the signal.**
 
-In a Spring 2025 memo, I built the textbook three-equation version of this model. No frictions. Same attack.
+The model has one knob the Fed controls: the weight it places on the raw nowcast in its perception filter. At weight one, the Fed takes the signal at face value (the naive case the previous two charts showed). At weight zero, it ignores the raw signal entirely and relies only on its own model-based prior.
 
-The toy model produced a counterintuitive result: instead of the fifty-basis-point hike the Taylor rule alone called for, the Fed cut rates by a couple of basis points on impact. Forward-looking inflation expectations fell so sharply that real rates tightened without nominal movement. The sign of the policy response had flipped.
+Hold the empirical Phillips slope and Smets-Wouters habit fixed, and turn the filter weight down to ten percent. The attack response collapses by roughly a third on impact and even more cumulatively. The Fed does not need to ignore the signal entirely to defend itself; it needs to stop trusting it.
 
-The toy result is not the headline. It is an artifact of an under-specified model. The headline is what the realistic model shows: the cost is real, it is large, and it lands over the following two years rather than at the moment of the shock.
+The defense is not free. A Fed that down-weights its nowcast under attack also down-weights it during a real shock. The next section is about how to think about that tradeoff.
 :::
 
 :::{focus-on="cr-realistic"}
@@ -122,14 +122,14 @@ fig.show()
 ```
 :::
 
-:::{focus-on="cr-toy"}
+:::{focus-on="cr-defended"}
 ```{python}
-#| label: chart-toy
+#| label: chart-defended
 fig = charts.irf_panel(
-    kappa=0.06, h=0.0, K_gain=1.0,
+    kappa=0.15, h=0.7, K_gain=0.1,
     highlight="i",
-    annotate_signflip=True,
-    title="Toy three-equation model · standardized attack shock",
+    annotate_signflip=False,
+    title="Smets-Wouters posterior · Fed at filter weight 0.1",
 )
 fig.show()
 ```
@@ -142,7 +142,7 @@ fig.show()
 `{python} realistic_bp`
 :::
 ::: {.label}
-Cumulative undershoot of the Fed's policy rate over eight quarters under the empirical Smets-Wouters calibration. About `{python} ratio_str` the original three-equation toy model's cumulative distortion.
+Cumulative undershoot of the Fed's policy rate over eight quarters under the empirical Smets-Wouters calibration when the central bank takes the nowcast signal at face value.
 :::
 ::: {.callout-source}
 Author calculations · Smets-Wouters posterior parameters · standardized +1 σ attack shock to perceived output gap
