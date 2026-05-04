@@ -1,58 +1,72 @@
-# Story site setup — GitHub flow
+# Story site setup — deploy runbook
 
-This is the deployment runbook. Follow it once the GitHub repository exists.
+The repo is at https://github.com/jblakeslee89/poison-dsge (private). The `main` branch holds source; the `gh-pages` branch holds rendered HTML, ready to serve.
 
-## 1. Create the GitHub repo
+## Important: GitHub Pages limitation on private repos
+
+GitHub Pages does not work on private repos under a free GitHub plan. The push to `gh-pages` succeeded but enabling Pages returns HTTP 422 ("Your current plan does not support GitHub Pages for this repository").
+
+Three options to get a live URL:
+
+### Option 1: Make the repo public (simplest, free, immediate)
+
+If there is no sensitive content (and there is not — this is a research project), this is the fastest path.
 
 ```bash
-# On github.com: create a public repo called `poison-dsge` under your account.
-# Do NOT initialize with README/license/.gitignore (the local repo already has commits).
-
-cd "/Users/johnpb89/Claude Projects/Econ/poison-dsge"
-git remote add origin https://github.com/jblakeslee89/poison-dsge.git
-git branch -M main
-git push -u origin main
+gh repo edit jblakeslee89/poison-dsge --visibility public --accept-visibility-change-consequences
+gh api -X POST /repos/jblakeslee89/poison-dsge/pages -f 'source[branch]=gh-pages' -f 'source[path]=/'
 ```
 
-## 2. Enable GitHub Pages
+Site is live in ~1 minute at **https://jblakeslee89.github.io/poison-dsge/**.
 
-1. On github.com, go to your repo → **Settings** → **Pages**.
-2. Under "Build and deployment" → **Source**, choose **Deploy from a branch**.
-3. Under "Branch", select `gh-pages` (it will not exist yet — that's fine; it gets created on first deploy).
-4. Save.
+### Option 2: Cloudflare Pages (free, keeps repo private)
 
-## 3. First-time deploy (option A: from your laptop)
+1. Sign in at dash.cloudflare.com (free account).
+2. **Workers & Pages** → **Create application** → **Pages** → **Connect to Git**.
+3. Authorize Cloudflare's GitHub app for the `poison-dsge` repo only.
+4. Build settings:
+    - Production branch: `main`
+    - Build command: `pip install -r story/requirements.txt && curl -sL https://github.com/quarto-dev/quarto-cli/releases/download/v1.6.43/quarto-1.6.43-linux-amd64.tar.gz | tar -xz && ./quarto-1.6.43/bin/quarto render story`
+    - Build output directory: `story/_site`
+5. Deploy. Site is live at `https://poison-dsge.pages.dev` (or a custom domain you add later).
 
-The simplest path. Run this once, after you've pushed to GitHub:
+Cloudflare's free tier supports private GitHub repos, custom domains, and unlimited bandwidth.
+
+### Option 3: GitHub Pro upgrade ($4/month)
+
+Upgrades the personal account to support Pages on private repos. Run the same `gh api` commands as Option 1 once upgraded.
+
+## Iterating locally
+
+The story is fully renderable from your laptop without any of the above. To work on it:
 
 ```bash
 cd "/Users/johnpb89/Claude Projects/Econ/poison-dsge/story"
-QUARTO_PYTHON="$(pwd)/.venv/bin/python" ~/.local/bin/quarto publish gh-pages
+QUARTO_PYTHON="$(pwd)/.venv/bin/python" ~/.local/bin/quarto preview
 ```
 
-Quarto will:
-- Render the site locally
-- Create the `gh-pages` branch
-- Push the rendered HTML to it
-- Configure GitHub Pages metadata
+Opens a live-reload preview at http://localhost:4444. Edit `index.qmd` or `charts.py` and the page reloads automatically.
 
-The first time you run this, Quarto asks for confirmation and your GitHub credentials (it uses `gh auth` if you have GitHub CLI, or git's credential helper otherwise).
+## Pushing updates
 
-After first publish, the site is live at:
+```bash
+cd "/Users/johnpb89/Claude Projects/Econ/poison-dsge"
+git add story/
+git commit -m "Update story"
+git push
 
-**https://jblakeslee89.github.io/poison-dsge/**
+# Then re-render and re-publish gh-pages:
+cd story
+QUARTO_PYTHON="$(pwd)/.venv/bin/python" ~/.local/bin/quarto render
+cd /tmp && rm -rf poison-dsge-pages
+git clone --depth 1 -b gh-pages https://github.com/jblakeslee89/poison-dsge.git poison-dsge-pages
+rm -rf poison-dsge-pages/!(.git)  # clear old content
+cp -R "/Users/johnpb89/Claude Projects/Econ/poison-dsge/story/_site/." poison-dsge-pages/
+touch poison-dsge-pages/.nojekyll
+cd poison-dsge-pages && git add -A && git commit -m "Update site" && git push origin gh-pages
+```
 
-(Replace `jblakeslee89` if your GitHub username differs.)
-
-## 4. Subsequent deploys (option B: automatic via GitHub Actions)
-
-The repo includes `.github/workflows/publish-story.yml`. Once enabled:
-
-1. Any push to `main` that touches `story/**` or `results/dash_cache_*.csv` triggers a build.
-2. The workflow installs Quarto and Python, renders the site, and pushes to `gh-pages`.
-3. GitHub Pages serves the new version within ~1 minute.
-
-To enable: on github.com, go to **Settings** → **Actions** → **General** → ensure "Allow all actions and reusable workflows" is selected. Push to `main` and watch the **Actions** tab.
+(The GitHub Actions workflow at `.github/workflows/publish-story.yml` automates this once the repo is public or upgraded — but on free private it cannot push to a Pages-served branch since Pages itself is disabled.)
 
 ## 5. Iterating locally
 
