@@ -1,0 +1,41 @@
+name: Publish story site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'story/**'
+      - 'results/dash_cache_*.csv'
+      - '.github/workflows/publish-story.yml'
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: 1.6.43
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r story/requirements.txt
+
+      - name: Render and publish
+        uses: quarto-dev/quarto-actions/publish@v2
+        with:
+          target: gh-pages
+          path: story
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

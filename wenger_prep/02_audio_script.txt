@@ -1,0 +1,57 @@
+Jennie Wenger meeting prep. Audio briefing.
+
+Section one. The headline.
+
+Jennie Wenger is a senior economist at RAND. She has been there for years, came over from CNA, the Center for Naval Analyses. Her PhD is from UNC Chapel Hill. She is a defense personnel economist. The defining work of her career is a twenty-year evaluation series of the National Guard Youth ChalleNGe program, a residential program for high school dropouts. She runs the annual reports on it. The 2024 to 2025 cycle was the tenth.
+
+Before you go any further, here is a critical correction. You asked me to look into her work with Daniel Egel. I checked thoroughly. There is no Wenger and Egel co-authored publication. I cross referenced her full RAND publication list against his. Zero overlap. They sit in different research programs at RAND. Wenger does DoD personnel and human capital. Egel does defense applied development and irregular warfare. So do not walk in claiming you know they work together. The right move is an open question. Something like, your work and Daniel Egel's both sit at the economics and national security intersection, do you work together much. That lets her tell you the actual relationship.
+
+Her real cross-program collaborator, the closest analog to what an Egel pairing would look like, is Mark Cozad. He is a RAND political scientist on China. They co-wrote a January 2025 paper called Factors Shaping the Future of China's Military. She brought personnel economics tools to a PLA modernization question. That is the most strategy-relevant thing she has put out recently and it is your best opening.
+
+Section two. The five throughlines in her work.
+
+Throughline one. National Guard Youth ChalleNGe. Her career signature. Twenty years of return on investment work. The headline finding is that the program returns about two dollars sixty six cents in lifetime benefits per dollar of cost. A 166 percent ROI. Raises lifetime earnings by about forty three thousand dollars per participant in 2010 dollars. She is now branching this into broader work on disconnected youth with a co-author named Stephanie Bonds.
+
+Throughline two. Military education benefits and the Post 9 11 GI Bill. Her flagship paper here is from 2017, called Are Current Military Education Benefits Efficient and Effective for the Services. The most prestigious paper on her CV is from 2022, in the Journal of Policy Analysis and Management. It is called Veteran Educators or For Profiteers, and it studies how colleges raised tuition in response to Post 9 11 GI Bill rule changes. Think of it as a Bennett hypothesis paper applied to veterans. Clean difference in differences identification. This is the work most legible to an academic track economist.
+
+Throughline three. Personnel economics inside DoD. Recruiting, retention, force composition. Papers on Army cyber retention, on integrating women into the Marine Corps infantry, on Coast Guard personnel tempo, on deployment experience across the services. This is her bread and butter.
+
+Throughline four. Veterans transitions and post service labor markets. A working paper she co-wrote with Italo Gutierrez at the University of Michigan documents that draft era veterans who entered weak labor markets had persistent earnings and retirement preparedness deficits.
+
+Throughline five. The new China and industrial policy turn. This is the most interesting recent development. The Cozad paper from January 2025. Her own profile now says, much of her recent research focuses on using economics to improve industrial policy and national security. This is the bridge between her old DoD personnel work and the broader geoeconomics terrain.
+
+One important negative finding. Nothing in her published record on AI safety, AI policy, or data poisoning. The closest she gets is a 2016 paper called Searching for Information Online, which used Google Trends data on recruit relevant queries. That is big data as input. It is not data integrity as vulnerability. Do not walk in assuming she has a prior on AI policy.
+
+Section three. Her methodological style.
+
+She is a reduced form labor and applied micro economist. Program evaluation. Cost benefit analysis. Administrative data work. Survey design. Quasi experimental estimation. The JPAM paper is her most rigorous identification work.
+
+What she does not do. Structural modeling. DSGE. Calibration exercises. Randomized controlled trials. Formal theory. She is not a macroeconomist.
+
+This matters for how you pitch your data poisoning project to her. The methodological vocabulary will be foreign. She will not have a strong prior on Smets Wouters frictions or habit formation or the New Keynesian Phillips curve. So do not lead with the Bayesian estimation. The parts of your project that will actually land with her are three. The cost benefit framing, what does data poisoning cost in misallocated capital. The empirical identification angle, how would you detect this in the wild. And the policy implications for industrial policy and defense.
+
+Section four. Her recent output, last two years.
+
+January 2025. Factors Shaping the Future of China's Military with Cozad. Read this one if you read nothing else.
+
+Throughout 2025. A wave of work on disconnected youth. Two RAND Perspectives in October 2025 with Bonds. A November 2025 paper on the limited presence of male mentors in the lives of boys and young men. The headline statistic from that one is that one in three boys and young men lacks an adult male mentor.
+
+March 2026. The tenth annual ChalleNGe progress report.
+
+April 2026. A RAND Policy Minded podcast appearance, called Young and Disconnected in America.
+
+The pattern. She is increasingly framing her recruiting work as part of an industrial policy and national security capacity argument rather than a narrow DoD personnel optimization problem.
+
+Section five. Four conversation hooks, priority ordered.
+
+Hook one. Lead with the China demographics paper. Say, I read the China demographics piece. The way you used recruiting pool analysis to think about PLA modernization is the kind of bridge between personnel economics and grand strategy I have not seen done well elsewhere. Is that a direction you see continuing. This signals you actually read her recent work. It opens a strategic competition conversation. And it invites her to talk about the Cozad pairing.
+
+Hook two. The disconnected youth and recruiting pool linkage. Ask, are you finding that the disconnected youth work is starting to talk to the recruiting shortfall conversation. Those feel like the same population from two angles. This is a question only someone who understands DoD personnel economics could ask. It will land hard.
+
+Hook three. The JPAM tuition response paper as an econ cred handshake. Ask about the identification strategy. Or about whether she sees the Post 9 11 GI Bill tuition response as a case for benefit caps. This is how you signal you came up through the same applied micro tradition she did.
+
+Hook four. Your own data poisoning project, but framed for her. Do not lead with DSGE. Lead with this. I am rebuilding a Spring 2025 macro memo on AI data poisoning of Fed nowcasting into a structural sim. The toy version had a one percentage point sign flip that habit formation kills. Cumulative impact under Smets Wouters frictions is about five times larger, which I think is the real defense economics story. Then turn it back to her. On the personnel side, do you see analogous integrity questions in DoD's data infrastructure. Recruiting analytics, retention models, the pipeline you have used Google Trends data on. This connects your work to hers via the data integrity angle. Her 2016 Google Trends paper assumed clean signal. What happens if it is adversarially manipulated. That is a real research question. It is the kind of opening that can turn a coffee into a follow up.
+
+Final thought. The thing she is most likely to ask you back is, why do you think a structural model is the right tool for this. Have your answer ready. The answer is, the reduced form version was too brittle. The sign of the impact response flips depending on which calibration you choose. Only by writing down the propagation mechanism and testing across the full parameter space could I figure out which finding was real and which was an artifact of an under specified model. That is a defense in plain English of why structural was the right call. It is also the kind of methodological self awareness she will respect.
+
+End of briefing.

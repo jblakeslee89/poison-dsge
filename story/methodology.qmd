@@ -1,0 +1,49 @@
+---
+title: "Methodology"
+format:
+  html:
+    toc: true
+    css: styles.css
+---
+
+::: {.lede}
+The model is a New Keynesian DSGE solved in Julia, validated to machine precision against an original Dynare 6.3 implementation. The full methodology brief is in the project repository as a 30-page LaTeX PDF. This page is a high-level summary; serious readers should go to the brief.
+:::
+
+## Model
+
+A standard New Keynesian three-equation core, augmented with Smets-Wouters frictions:
+
+- **IS curve** with consumption habit ($h$): real spending depends on a habit-adjusted Euler equation.
+- **Phillips curve** with price indexation ($\chi_p$): half of price-setters mechanically index to lagged inflation.
+- **Taylor rule** with interest rate smoothing ($\rho_i$): the Fed adjusts gradually toward its target rate.
+
+The attack is modeled as a standardized exogenous shock to the Fed's perceived output gap. The Fed's perception filter is Kalman-style:
+
+$$\widetilde{ygap}_t = (1 - K) \cdot \rho_p \cdot \widetilde{ygap}_{t-1} + K \cdot (ygap_t + \nu_t + \text{attack}_t)$$
+
+where $K \in [0, 1]$ is the filter weight on the raw nowcast signal. $K = 1$ is a naive Fed that trusts the signal; $K = 0$ is a fully defended Fed that ignores it.
+
+## Calibration grid
+
+The 220-point grid sweeps:
+
+- $\kappa$ (Phillips slope) over $\{0.06, 0.10, 0.15, 0.20\}$
+- $h$ (habit) over $\{0.0, 0.4, 0.7\}$
+- $K$ (filter weight) over $\{0, 0.1, 0.25, 0.5, 0.75, 1.0\}$
+
+Each point is a full DSGE solution (impulse-response functions over 16 quarters, 80-quarter welfare loss, three shocks).
+
+## Welfare metric
+
+Standard NK loss function: $L = \text{var}(\pi) + 0.5 \cdot \text{var}(ygap)$, computed as the sum of squared IRF contributions across the three shocks (productivity, monetary policy, attack).
+
+## Validation
+
+The Julia implementation (MacroModelling.jl) was validated to machine precision against an original Dynare 6.3 implementation of the same equations. IRF differences across the two solvers are below $10^{-10}$ at all horizons.
+
+## Code and data
+
+All code is in the [project repository](https://github.com/jblakeslee89/poison-dsge). The pre-computed cache used by this story is in `results/dash_cache_*.csv`; the Julia pre-compute script is `scripts/precompute_dash_cache.jl`.
+
+The full methodology brief is at [methodology_brief.pdf](../docs/methodology_brief.pdf). The non-economist companion primer is at [companion_primer.pdf](../docs/companion_primer.pdf).

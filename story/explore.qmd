@@ -1,0 +1,56 @@
+---
+title: "Try it yourself"
+format:
+  html:
+    css: styles.css
+---
+
+::: {.lede}
+The interactive companion below lets you move three sliders across the model's parameter space and watch how the attack response changes. The defaults are set to the empirical (Smets-Wouters posterior) calibration.
+:::
+
+The full interactive demo is hosted separately as a Plotly Dash app. While that app is being deployed, here are static versions of the key configurations:
+
+## The three canonical scenarios
+
+```{python}
+#| label: setup
+#| include: false
+import sys, pathlib
+sys.path.insert(0, str(pathlib.Path.cwd()))
+import charts
+```
+
+### Memo (toy model, 2025)
+
+```{python}
+charts.irf_panel(0.06, 0.0, 1.0, title="κ=0.06, h=0.0, K=1.0").show()
+```
+
+The original Spring 2025 calibration. Flat Phillips curve, no consumption habit, naive Fed. Produces the headline sign-flip on impact.
+
+### Realistic (Smets-Wouters posterior)
+
+```{python}
+charts.irf_panel(0.15, 0.7, 1.0, title="κ=0.15, h=0.7, K=1.0").show()
+```
+
+Empirical Phillips slope, Smets-Wouters consumption habit, naive Fed. Impact sign-flip attenuates; the cumulative two-year response is the real story.
+
+### Defended (heavy filter)
+
+```{python}
+charts.irf_panel(0.15, 0.7, 0.0, title="κ=0.15, h=0.7, K=0.0").show()
+```
+
+Realistic calibration with the Fed ignoring the raw nowcast signal entirely. The attack response collapses.
+
+## The defense-cost tradeoff
+
+```{python}
+charts.welfare_bars(0.15, 0.7, 0.1).show()
+```
+
+Welfare loss with vs without attack at the realistic-with-light-filter calibration ($\kappa = 0.15$, $h = 0.7$, $K = 0.1$). At $K = 0$, the red bar collapses to the blue. But there is a cost: the Fed becomes less responsive to genuine real shocks.
+
+The full Dash app (deployed at [HuggingFace Spaces](https://huggingface.co/spaces/) when the deployment finalizes) lets you sweep all three sliders and read off the welfare crossover probability live.

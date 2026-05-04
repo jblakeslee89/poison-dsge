@@ -1,0 +1,201 @@
+---
+title: ""
+format:
+  closeread-html:
+    css: styles.css
+    cr-section:
+      layout: "sidebar-left"
+---
+
+```{python}
+#| label: setup
+#| include: false
+import sys, pathlib
+sys.path.insert(0, str(pathlib.Path.cwd()))
+import charts
+stats = charts.cumulative_5x_callout()
+ratio_str = f"{stats['ratio']:.1f}×"
+realistic_bp = f"{abs(stats['realistic_cum']):.0f} bp"
+```
+
+::: {.hero}
+::: {.kicker}
+A working paper on AI and monetary policy
+:::
+
+# If you can fool the Fed's nowcast, you can move tens of billions of dollars.
+
+::: {.subhead}
+Every major central bank now reads the economy in real time through machine-learning models that ingest scraped public-web data. We modeled what happens when an adversary contaminates the inputs.
+:::
+
+::: {.byline}
+By **John Blakeslee** · Updated April 2026
+:::
+:::
+
+::: {.lede}
+The Federal Reserve has a measurement problem, and it has had one for fifty years. In the late 1960s and through the 1970s, the period economists now call the Great Inflation, real-time output gaps were grossly understated. Policymakers saw slack where there was none. Between 1973 and 1975, as Athanasios Orphanides has shown, the federal funds rate sat roughly 300 basis points below what a Taylor rule run on accurate data would have prescribed. The misreading was not the only cause of runaway inflation. It was jet fuel.
+
+Three decades later, in 2008, the Fed misread the data the other way. Initial GDP figures missed the collapse by about five percentage points. The aggressive easing came late.
+
+Roberto Billi of the Riksbank put it plainly: "In practice, however, the output gap is a noisy signal of economic activity. Estimates of the output gap are often subject to large revisions, even long after the time policy is actually made." A study he co-authored found that between 1991 and 2010 the difference between the CBO's real-time estimates of the output gap and its eventual revisions ran from negative 3.3 percentage points to positive 3.0 percentage points. Orphanides put a number on the typical magnitude: 58 basis points of standard deviation on the first revision alone, with the maximum approaching 200.
+
+This is the inheritance modern central banking still carries. Now imagine the same problem, deliberately weaponized.
+:::
+
+<hr class="section-divider">
+
+::: {.lede}
+## A new kind of attack surface
+
+Through the 2010s and 2020s, central banks pushed past the slow drip of official statistics. The Bank for International Settlements has tracked the shift in its annual reports for years. Every major central bank now runs some version of a real-time nowcast pipeline. The pipelines synthesize scraped price data, credit-card transaction aggregates, job-posting feeds, satellite imagery of major ports, and social-media sentiment. They produce daily-frequency estimates of output and inflation, well before the Bureau of Labor Statistics or the Bureau of Economic Analysis publish anything official.
+
+These pipelines have a property that traditional government statistics do not. The Bureau of Labor Statistics gathers payroll data through air-gapped survey infrastructure, encrypted transfers, and rigorous internal validation. It is exceedingly difficult to tamper with payroll employment data without detection. A nowcast pipeline ingests the open web. By design.
+
+In 2024, the U.S. Treasury Department warned that "data poisoning, data leakage, and data integrity attacks can take place at any stage of the AI development and supply chain." The same year, a Russian information operation called Pravda showed the world the warning was concrete. The American Sunlight Project documented 3.6 million auto-generated articles published across the network in 2024 alone. The articles were not designed to be read by humans; many of the sites lacked basic functionality. They were designed to be ingested by the large-language models and search summarizers that have begun to source the open web.
+
+Newsguard ran an independent audit. Across 450 separate prompts to ten of the most popular AI chatbots, those models referenced 92 distinct Pravda articles. One in three returned Kremlin narratives directly. The Russian propagandist John Mark Dougan, on Russian state media, did not bother to obscure the strategy: "By pushing these Russian narratives from the Russian perspective, we can actually change worldwide AI."
+
+A central bank's nowcast pipeline is the same kind of system as a chatbot's retrieval layer. Less famous, consequential in a way a chatbot is not.
+:::
+
+<hr class="section-divider">
+
+:::::: {.cr-section}
+
+::: {#cr-realistic}
+**Start with the model the Fed actually uses.**
+
+The standard New Keynesian model has three equations: a Phillips curve, an Euler-equation IS curve, and a Taylor rule. The textbook version assumes households can adjust spending instantly, prices are fully forward-looking, and the central bank moves in one shot.
+
+The empirical literature has spent twenty years documenting that none of this is true. Smets and Wouters' Bayesian-estimated DSGE model, which has become the workhorse for academic macro and the Fed's own structural analysis, layers in three frictions: consumption habit (households cannot adjust on a dime), price indexation (about half of price-setters are mechanically backward-looking), and interest rate smoothing (the Fed adjusts gradually toward target).
+
+This is the model we attack.
+
+A standardized data-poisoning shock pushes the Fed's perceived output gap up by one percentage point. The Taylor rule alone would call for a hike of roughly fifty basis points. With the realistic frictions in place, the Fed instead barely moves on impact, and then begins to under-tighten over the following two years.
+:::
+
+::: {#cr-cumulative}
+**The undershoot is the story.**
+
+Watch the policy-rate panel from quarter zero out to quarter eight. The line stays below where it should be, the entire time.
+
+Cumulatively, over the eight quarters following the attack, the Fed's policy rate falls roughly 74 basis points short of where the textbook rule would put it. Inflation overshoots. The output gap stays open longer than it should. The frictions did not defend the economy from the attack. They displaced the cost in time.
+
+A contemporary Fed, ingesting one bad signal at one FOMC meeting, does not over-react now. It under-reacts for two years.
+:::
+
+::: {#cr-toy}
+**The original toy model said something stranger.**
+
+In a Spring 2025 memo, I built the textbook three-equation version of this model. No frictions. Same attack.
+
+The toy model produced a counterintuitive result: instead of the fifty-basis-point hike the Taylor rule alone called for, the Fed cut rates by a couple of basis points on impact. Forward-looking inflation expectations fell so sharply that real rates tightened without nominal movement. The sign of the policy response had flipped.
+
+The toy result is not the headline. It is an artifact of an under-specified model. The headline is what the realistic model shows: the cost is real, it is large, and it lands over the following two years rather than at the moment of the shock.
+:::
+
+:::{focus-on="cr-realistic"}
+```{python}
+#| label: chart-realistic
+fig = charts.irf_panel(
+    kappa=0.15, h=0.7, K_gain=1.0,
+    highlight="i",
+    annotate_signflip=False,
+    title="Smets-Wouters posterior · standardized attack shock",
+)
+fig.show()
+```
+:::
+
+:::{focus-on="cr-cumulative"}
+```{python}
+#| label: chart-cumulative
+fig = charts.irf_panel(
+    kappa=0.15, h=0.7, K_gain=1.0,
+    highlight="i",
+    annotate_signflip=False,
+    title="Smets-Wouters posterior · the eight-quarter undershoot",
+)
+fig.show()
+```
+:::
+
+:::{focus-on="cr-toy"}
+```{python}
+#| label: chart-toy
+fig = charts.irf_panel(
+    kappa=0.06, h=0.0, K_gain=1.0,
+    highlight="i",
+    annotate_signflip=True,
+    title="Toy three-equation model · standardized attack shock",
+)
+fig.show()
+```
+:::
+
+::::::
+
+::: {.bigstat}
+::: {.number}
+`{python} realistic_bp`
+:::
+::: {.label}
+Cumulative undershoot of the Fed's policy rate over eight quarters under the empirical Smets-Wouters calibration. About `{python} ratio_str` the original three-equation toy model's cumulative distortion.
+:::
+::: {.callout-source}
+Author calculations · Smets-Wouters posterior parameters · standardized +1 σ attack shock to perceived output gap
+:::
+:::
+
+<hr class="section-divider">
+
+::: {.lede}
+## The defense, and what it costs
+
+Svensson and Woodford showed two decades ago that when economic measurements are especially noisy or uncertain, the optimal policy is to pay them less attention. In the language of the Kalman filter, the central bank should put a smaller weight on the raw signal and a larger weight on its own model-based prior. The same idea applies, exactly, to the data-poisoning case. Filter harder, attack hurts less.
+
+But filtering harder also means the Fed is less responsive to genuine shocks. A central bank that ignores its nowcast under attack also ignores it during a real productivity shift, a real demand shock, a real disinflation. The defense has a cost, and the size of the cost depends on what you think the probability of attack actually is.
+:::
+
+::: {.lede}
+We compute, at every parameter configuration in the grid, a crossover probability: the minimum perceived attack probability at which paying the filtering cost beats remaining naive. At the empirical Phillips slope and Smets-Wouters habit, the crossover sits around 25 percent. If you think the chance of a sustained, undetected nowcast-poisoning attack against the Fed in any given year is meaningfully above one in four, you should be filtering. If you think it is well below, you should not be.
+
+That is a question for cyber threat intelligence, not for the macroeconomist. The model can tell you the breakeven probability. It cannot tell you which side of breakeven we are on.
+:::
+
+<hr class="section-divider">
+
+::: {.lede}
+## Three policy pillars
+
+A defended Fed is the model's prescription. It is also the easiest reform to implement, because it requires nothing of anyone outside the FOMC. The harder reforms work upstream of the Fed, on the integrity of the data itself. The original memo proposed three.
+
+**Cryptographic feed signatures.** Every JSON or CSV nowcast feed the Fed ingests should originate from a hardware security module. The HSM holds the signing key in tamper-resistant hardware; NIST treats it as the gold standard for data integrity. The European Central Bank already requires this for its statistical data exchange. The cost is real: a 2023 market survey put the average HSM at thirteen thousand dollars per unit. The benefit is a tamper-evident audit trail that makes silent poisoning attacks much harder to execute.
+
+**Uncertainty-adaptive Taylor coefficients.** Make the model's prescription a rule. When the dispersion across nowcast inputs widens, the Fed should automatically down-weight noisy indicators in its policy response. This is exactly the Svensson-Woodford framework operationalized. The risk is recursion: if the dispersion measures themselves can be manipulated, the defense becomes the attack surface.
+
+**Public provenance ledgers.** Publish the full ingestion log: every input, its source, its timestamp, its weight. The Russian Pravda operation was uncovered by the American Sunlight Project, an outside group with no special access. A public ledger lets external auditors do the same job for the Fed. Shayne Longpre and co-authors have argued for a multi-stakeholder data provenance standard "akin to the W3 consortium." The risk is the inverse of the previous one: full transparency tells adversaries which inputs carry the most policy weight, and lets them target accordingly.
+
+No single pillar is sufficient. Together they form the layered defense that the model says is worth paying for.
+:::
+
+<hr class="section-divider">
+
+::: {.method-note}
+### About this study
+
+The model is a New Keynesian DSGE solved in Julia (MacroModelling.jl), validated to machine precision against the original Dynare 6.3 implementation. The main calibration uses Smets-Wouters posterior parameters: Phillips slope κ = 0.15, consumption habit h = 0.7, price indexation χ_p = 0.5, interest rate smoothing ρ_i = 0.7. The Fed's perception filter is Kalman-style: `gap_perceived = (1 − K) · ρ_p · gap_perceived[-1] + K · (ygap + ν + attack)`. The 80-quarter welfare loss is the sum of squared IRF contributions across three shocks: productivity, monetary policy, and attack.
+
+The full methodology brief, the lit review with citations, and a non-economist primer are linked in [the project repository](https://github.com/jblakeslee89/poison-dsge). All code is open source under MIT license.
+
+This page is the public-facing data story. The peer-review version is in preparation.
+:::
+
+::: {.story-footer}
+:::: {style="text-align:center"}
+**Adversarial Nowcasting and Monetary Policy**
+::::
+A working paper by John Blakeslee · April 2026 · [Code on GitHub](https://github.com/jblakeslee89/poison-dsge) · [Companion primer (PDF)](../docs/companion_primer.pdf) · [Methodology brief (PDF)](../docs/methodology_brief.pdf)
+:::
