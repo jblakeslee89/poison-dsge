@@ -72,10 +72,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-d4d76bf8491c20bad77d141916dc28e1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-3ee733ba87b05f8e7f7a71edff677f8d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
-<script src="site_libs/quarto-contrib/intersection-observer-polyfill-1.0.0/intersection-observer.js"></script>
-<script src="site_libs/quarto-contrib/scrollama-3.2.0/scrollama.min.js"></script>
-<script src="site_libs/quarto-contrib/closeread-0.1.0/closeread.js"></script>
+<link href="site_libs/bootstrap/bootstrap-2e3431c0bef4147709162a205cf110f5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -103,11 +100,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
-<meta cr-debug-mode="false">
-<meta cr-remove-header-space="false">
+<link rel="preconnect" href="https://cdn.plot.ly">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@400;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
 
 
-<link rel="stylesheet" href="site_libs/quarto-contrib/quarto-project/qmd-lab/closeread/closeread.css">
 <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -161,17 +159,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     
 <!-- main -->
 <main class="content column-page" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
-      <!-- user-provided yaml closeread style options -->
-      <style>
-        :root {
-          --cr-section-background-color: #fafaf7;
---cr-narrative-background-color-overlay: rgba(255, 255, 255, 0.92);
---cr-narrative-font-family: -apple-system, BlinkMacSystemFont, ‘Segoe UI’, sans-serif;
---cr-narrative-font-size: 1.05rem;
---cr-narrative-text-color-overlay: #1a1a1a;
-        }
-      </style>
-    
 
 
 
@@ -303,6 +290,199 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 
 </main> <!-- /main -->
+<script>
+(function () {
+  'use strict';
+
+  // ============================================================
+  // SCROLLYTELLING — IntersectionObserver + Plotly.react morphing
+  // ============================================================
+  function initScrolly() {
+    const scrolly = document.querySelector('.scrolly');
+    if (!scrolly) return;
+    const chartDiv = document.getElementById('scrolly-chart');
+    if (!chartDiv || !window.SCROLLY_STATES) return;
+
+    const steps = scrolly.querySelectorAll('.scrolly-step');
+
+    function setState(stateKey) {
+      const fig = window.SCROLLY_STATES[stateKey];
+      if (!fig || !window.Plotly) return;
+      // Use Plotly.react for smooth morph (same trace count → animated transition)
+      window.Plotly.react(chartDiv, fig.data, fig.layout, fig.config || {responsive: true, displayModeBar: false})
+        .then(() => {
+          // Add a subtle transition by re-running animate
+          if (window.Plotly.animate) {
+            window.Plotly.animate(chartDiv, {data: fig.data, layout: fig.layout},
+              {transition: {duration: 600, easing: 'cubic-in-out'},
+               frame: {duration: 600, redraw: false}});
+          }
+        });
+    }
+
+    // Initialize with the first state immediately
+    const initialKey = steps[0]?.dataset?.state;
+    if (initialKey) setState(initialKey);
+
+    // IntersectionObserver: trigger when each step is centered in the viewport
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const stateKey = entry.target.dataset.state;
+          steps.forEach(s => s.classList.remove('is-active'));
+          entry.target.classList.add('is-active');
+          if (stateKey) setState(stateKey);
+        }
+      });
+    }, {
+      root: null,
+      threshold: 0.55,
+      rootMargin: '-15% 0px -25% 0px',
+    });
+
+    steps.forEach((step) => observer.observe(step));
+  }
+
+  // ============================================================
+  // BIGSTAT COUNTER ANIMATION
+  // ============================================================
+  function initCounter() {
+    const counter = document.querySelector('.bigstat .number.counter');
+    if (!counter) return;
+    const target = parseFloat(counter.dataset.target || '3.2');
+    const suffix = counter.dataset.suffix || '×';
+    const start = parseFloat(counter.dataset.start || '1.0');
+    counter.textContent = start.toFixed(1) + suffix;
+
+    let played = false;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && !played) {
+          played = true;
+          const duration = 1600;
+          const startT = performance.now();
+          function tick(now) {
+            const t = Math.min(1, (now - startT) / duration);
+            // Easing
+            const eased = 1 - Math.pow(1 - t, 3);
+            const v = start + (target - start) * eased;
+            counter.textContent = v.toFixed(1) + suffix;
+            if (t < 1) requestAnimationFrame(tick);
+            else counter.textContent = target.toFixed(1) + suffix;
+          }
+          requestAnimationFrame(tick);
+        }
+      });
+    }, { threshold: 0.6 });
+    observer.observe(counter);
+  }
+
+  // ============================================================
+  // INLINE EXPLORER — sliders bound to the precomputed grid
+  // ============================================================
+  function initExplorer() {
+    const root = document.getElementById('inline-explorer');
+    if (!root || !window.EXPLORER_DATA) return;
+    const data = window.EXPLORER_DATA; // {grid: {kappa: [...], h: [...], K: [...]}, irf: {key: {i: [...], pi: [...], ygap: [...]}}}
+    const chartDiv = document.getElementById('explorer-chart');
+    const kappaInput = root.querySelector('#explorer-kappa');
+    const hInput = root.querySelector('#explorer-h');
+    const KInput = root.querySelector('#explorer-K');
+    const kappaVal = root.querySelector('#explorer-kappa-val');
+    const hVal = root.querySelector('#explorer-h-val');
+    const KVal = root.querySelector('#explorer-K-val');
+    const readout = root.querySelector('#explorer-readout');
+
+    function fmt(x, n) { return Number(x).toFixed(n); }
+
+    function nearest(arr, v) {
+      let best = arr[0], bd = Math.abs(arr[0]-v);
+      for (let i = 1; i < arr.length; i++) {
+        const d = Math.abs(arr[i] - v);
+        if (d < bd) { best = arr[i]; bd = d; }
+      }
+      return best;
+    }
+
+    function update() {
+      const k = nearest(data.grid.kappa, parseFloat(kappaInput.value));
+      const h = nearest(data.grid.h, parseFloat(hInput.value));
+      const K = nearest(data.grid.K, parseFloat(KInput.value));
+      kappaVal.textContent = fmt(k, 2);
+      hVal.textContent = fmt(h, 1);
+      KVal.textContent = fmt(K, 2);
+      const key = `${fmt(k,2)}|${fmt(h,1)}|${fmt(K,1)}`;
+      const series = data.irf[key];
+      if (!series) {
+        readout.textContent = 'No data at this configuration.';
+        return;
+      }
+      const x = series.i.map((_, idx) => idx);
+      const navy = '#1f3a5f';
+      const dim = 'rgba(31,58,95,0.30)';
+      const traces = [
+        { x, y: series.i, mode: 'lines', line: {color: navy, width: 3.5},
+          name: 'Policy rate (bp)', xaxis: 'x', yaxis: 'y' },
+        { x, y: series.pi, mode: 'lines', line: {color: dim, width: 2},
+          name: 'Inflation (pp annualized)', xaxis: 'x', yaxis: 'y2' },
+        { x, y: series.ygap, mode: 'lines', line: {color: dim, width: 2},
+          name: 'Output gap (pp)', xaxis: 'x', yaxis: 'y3' },
+      ];
+      const i0 = series.i[0];
+      const i_cum8 = series.i.slice(0, 8).reduce((a,b)=>a+b, 0);
+      const layout = {
+        grid: { rows: 3, columns: 1, pattern: 'independent' },
+        xaxis:  { title: '',                    showgrid: false, showline: true, linecolor: '#dcdcdc', tickfont: {size: 11, color: '#666'}, domain: [0,1], anchor: 'y3' },
+        xaxis2: { showgrid: false, showline: true, linecolor: '#dcdcdc', tickfont: {size: 11, color: '#666'}, anchor: 'y2', matches: 'x' },
+        xaxis3: { title: 'Quarters after attack', showgrid: false, showline: true, linecolor: '#dcdcdc', tickfont: {size: 11, color: '#666'}, anchor: 'y3', matches: 'x' },
+        yaxis:  { title: 'Policy rate (bp)', domain: [0.70, 1.0], gridcolor: '#dcdcdc', zeroline: true, zerolinecolor: '#888', tickfont: {size: 11, color: '#666'} },
+        yaxis2: { title: 'Inflation (pp ann.)', domain: [0.36, 0.66], gridcolor: '#dcdcdc', zeroline: true, zerolinecolor: '#888', tickfont: {size: 11, color: '#666'} },
+        yaxis3: { title: 'Output gap (pp)', domain: [0.0, 0.32],  gridcolor: '#dcdcdc', zeroline: true, zerolinecolor: '#888', tickfont: {size: 11, color: '#666'} },
+        showlegend: false,
+        paper_bgcolor: '#fafaf7',
+        plot_bgcolor: '#fafaf7',
+        height: 600,
+        margin: { l: 70, r: 30, t: 30, b: 50 },
+        font: { family: 'Inter, -apple-system, sans-serif', color: '#1a1a1a' },
+        transition: { duration: 400, easing: 'cubic-in-out' },
+      };
+      window.Plotly.react(chartDiv, traces, layout, {responsive: true, displayModeBar: false});
+
+      const direction = (i0 < 0) ? 'cuts' : (i0 > 0 ? 'hikes' : 'holds');
+      const cumWord = i_cum8 < -10 ? 'undershoots' : (i_cum8 > 10 ? 'overshoots' : 'tracks closely');
+      readout.innerHTML =
+        `<strong>Impact (Q0):</strong> Fed ${direction} by ${fmt(Math.abs(i0),1)} bp. ` +
+        `<strong>8-quarter cumulative:</strong> Fed ${cumWord} by ${fmt(Math.abs(i_cum8), 1)} bp.`;
+    }
+
+    [kappaInput, hInput, KInput].forEach(el => el.addEventListener('input', update));
+    update();
+  }
+
+  // Run after DOM and Plotly are ready
+  function ready(fn) {
+    if (document.readyState !== 'loading') fn();
+    else document.addEventListener('DOMContentLoaded', fn);
+  }
+
+  function whenPlotlyReady(fn) {
+    if (window.Plotly) return fn();
+    let tries = 0;
+    const t = setInterval(() => {
+      if (window.Plotly) { clearInterval(t); fn(); }
+      if (++tries > 200) clearInterval(t);
+    }, 50);
+  }
+
+  ready(() => {
+    whenPlotlyReady(() => {
+      initScrolly();
+      initExplorer();
+    });
+    initCounter();
+  });
+})();
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

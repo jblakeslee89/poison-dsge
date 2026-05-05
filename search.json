@@ -46,14 +46,28 @@
     "href": "index.html",
     "title": "If you can fool the Fed’s nowcast, you can move tens of billions of dollars.",
     "section": "",
-    "text": "A working paper on AI and monetary policy\n\n\n\n\nEvery major central bank now reads the economy in real time through machine-learning models that ingest scraped public-web data. We modeled what happens when an adversary contaminates the inputs.\n\n\nBy John Blakeslee · Updated April 2026\nWelfare loss with and without attack, across three Fed filter regimes. The defended regime (K = 0) eliminates the attack-induced loss entirely. The cost is that the Fed becomes less responsive to genuine real shocks, raising baseline loss modestly."
+    "text": ":::\nWelfare loss with and without attack, across three Fed filter regimes. The defended regime (K = 0) eliminates the attack-induced loss entirely. The cost is that the Fed becomes less responsive to genuine real shocks, raising baseline loss modestly.\n::: {.help-text} Toy = 0. Smets-Wouters posterior for the US ≈ 0.70. ::: :::\n::: {.help-text} 1.0 = naive Fed. 0 = ignores signal, uses internal prior only. ::: ::: :::\n:::"
   },
   {
     "objectID": "index.html#a-new-kind-of-attack-surface",
     "href": "index.html#a-new-kind-of-attack-surface",
     "title": "If you can fool the Fed’s nowcast, you can move tens of billions of dollars.",
     "section": "A new kind of attack surface",
-    "text": "A new kind of attack surface\nThrough the 2010s and 2020s, central banks pushed past the slow drip of official statistics. The Bank for International Settlements has tracked the shift in its annual reports for years. Every major central bank now runs some version of a real-time nowcast pipeline. The pipelines synthesize scraped price data, credit-card transaction aggregates, job-posting feeds, satellite imagery of major ports, and social-media sentiment. They produce daily-frequency estimates of output and inflation, well before the Bureau of Labor Statistics or the Bureau of Economic Analysis publish anything official.\nThese pipelines have a property that traditional government statistics do not. The Bureau of Labor Statistics gathers payroll data through air-gapped survey infrastructure, encrypted transfers, and rigorous internal validation. It is exceedingly difficult to tamper with payroll employment data without detection. A nowcast pipeline ingests the open web. By design.\nIn 2024, the U.S. Treasury Department warned that “data poisoning, data leakage, and data integrity attacks can take place at any stage of the AI development and supply chain.” The same year, a Russian information operation called Pravda showed the world the warning was concrete. The American Sunlight Project documented 3.6 million auto-generated articles published across the network in 2024 alone. The articles were not designed to be read by humans; many of the sites lacked basic functionality. They were designed to be ingested by the large-language models and search summarizers that have begun to source the open web.\nNewsguard ran an independent audit. Across 450 separate prompts to ten of the most popular AI chatbots, those models referenced 92 distinct Pravda articles. One in three returned Kremlin narratives directly. The Russian propagandist John Mark Dougan, on Russian state media, did not bother to obscure the strategy: “By pushing these Russian narratives from the Russian perspective, we can actually change worldwide AI.”\nA central bank’s nowcast pipeline is the same kind of system as a chatbot’s retrieval layer. Less famous, consequential in a way a chatbot is not."
+    "text": "A new kind of attack surface\nThrough the 2010s and 2020s, central banks pushed past the slow drip of official statistics. The Bank for International Settlements has tracked the shift in its annual reports for years. Every major central bank now runs some version of a real-time nowcast pipeline. The pipelines synthesize scraped price data, credit-card transaction aggregates, job-posting feeds, satellite imagery of major ports, and social-media sentiment. They produce daily-frequency estimates of output and inflation, well before the Bureau of Labor Statistics or the Bureau of Economic Analysis publish anything official.\nThese pipelines have a property that traditional government statistics do not."
+  },
+  {
+    "objectID": "index.html#we-modeled-it.",
+    "href": "index.html#we-modeled-it.",
+    "title": "If you can fool the Fed’s nowcast, you can move tens of billions of dollars.",
+    "section": "We modeled it.",
+    "text": "We modeled it."
+  },
+  {
+    "objectID": "index.html#move-the-sliders-yourself",
+    "href": "index.html#move-the-sliders-yourself",
+    "title": "If you can fool the Fed’s nowcast, you can move tens of billions of dollars.",
+    "section": "Move the sliders yourself",
+    "text": "Move the sliders yourself\nThe chart below is built off the full pre-computed grid: 220 DSGE solutions across all combinations of the Phillips slope, consumption habit, and the Fed’s filter weight. Drag the sliders to see how the attack response shifts."
   },
   {
     "objectID": "index.html#the-defense-and-what-it-costs",
