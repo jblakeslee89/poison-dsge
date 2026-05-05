@@ -1,6 +1,8 @@
 project:
   type: website
   output-dir: _site
+  resources:
+    - "assets/**"
 
 website:
   title: "Adversarial Nowcasting"
@@ -23,27 +25,23 @@ website:
         aria-label: GitHub repository
 
 format:
-  closeread-html:
+  html:
     theme:
       - cosmo
       - styles.scss
     css: styles.css
-    cr-section:
-      layout: "sidebar-left"
-    cr-style:
-      narrative-background-color-overlay: "rgba(255, 255, 255, 0.92)"
-      narrative-text-color-overlay: "#1a1a1a"
-      section-background-color: "#fafaf7"
-      narrative-font-family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-      narrative-font-size: "1.05rem"
     toc: false
     embed-resources: false
     page-layout: full
     fontsize: "16px"
-    grid:
-      sidebar-width: 0px
-      body-width: 1200px
-      margin-width: 0px
+    include-in-header:
+      - text: |
+          <link rel="preconnect" href="https://cdn.plot.ly">
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    include-after-body:
+      - assets/scrolly.html
 
 execute:
   freeze: auto

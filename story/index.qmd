@@ -1,10 +1,8 @@
 ---
 title: ""
 format:
-  closeread-html:
+  html:
     css: styles.css
-    cr-section:
-      layout: "sidebar-left"
 ---
 
 ```{python}
@@ -14,9 +12,20 @@ import sys, pathlib
 sys.path.insert(0, str(pathlib.Path.cwd()))
 import charts
 wr = charts.welfare_ratios()
-naive_ratio_str = f"{wr['naive']:.1f}×"
-light_ratio_str = f"{wr['light_filter']:.1f}×"
-defended_ratio_str = f"{wr['defended']:.1f}×"
+naive_ratio   = wr['naive']
+defended_ratio = wr['defended']
+scrolly_states_payload = charts.scrolly_states_json()
+explorer_payload       = charts.explorer_payload_json()
+```
+
+```{python}
+#| label: inject-state
+#| output: asis
+#| echo: false
+print(f"""<script>
+window.SCROLLY_STATES = {scrolly_states_payload};
+window.EXPLORER_DATA  = {explorer_payload};
+</script>""")
 ```
 
 ::: {.hero}
@@ -39,10 +48,76 @@ By **John Blakeslee** · Updated April 2026
 The Federal Reserve has a measurement problem, and it has had one for fifty years. In the late 1960s and through the 1970s, the period economists now call the Great Inflation, real-time output gaps were grossly understated. Policymakers saw slack where there was none. Between 1973 and 1975, as Athanasios Orphanides has shown, the federal funds rate sat roughly 300 basis points below what a Taylor rule run on accurate data would have prescribed. The misreading was not the only cause of runaway inflation. It was jet fuel.
 
 Three decades later, in 2008, the Fed misread the data the other way. Initial GDP figures missed the collapse by about five percentage points. The aggressive easing came late.
+:::
 
+::: {.timeline}
+::: {.timeline-track}
+::: {.timeline-events}
+::: {.timeline-event}
+::: {.dot}
+:::
+::: {.year}
+1973
+:::
+::: {.label}
+The Great Inflation
+:::
+::: {.stat}
+−300 bp below Taylor
+:::
+::: {.desc}
+Output gap mismeasured. Fed sat 300 bp too low for two years.
+:::
+:::
+
+::: {.timeline-event}
+::: {.dot}
+:::
+::: {.year}
+2008
+:::
+::: {.label}
+The Financial Crisis
+:::
+::: {.stat}
+−5.0 pp on initial GDP
+:::
+::: {.desc}
+Initial GDP missed the collapse by five percentage points. Easing came late.
+:::
+:::
+
+::: {.timeline-event}
+::: {.dot}
+:::
+::: {.year}
+2024
+:::
+::: {.label}
+The Pravda operation
+:::
+::: {.stat}
+3.6 M articles
+:::
+::: {.desc}
+Russia poisons LLM-readable web at scale. Same attack surface as central-bank nowcasts.
+:::
+:::
+:::
+:::
+:::
+
+::: {.lede .no-dropcap}
 Roberto Billi of the Riksbank put it plainly: "In practice, however, the output gap is a noisy signal of economic activity. Estimates of the output gap are often subject to large revisions, even long after the time policy is actually made." A study he co-authored found that between 1991 and 2010 the difference between the CBO's real-time estimates of the output gap and its eventual revisions ran from negative 3.3 percentage points to positive 3.0 percentage points. Orphanides put a number on the typical magnitude: 58 basis points of standard deviation on the first revision alone, with the maximum approaching 200.
 
 This is the inheritance modern central banking still carries. Now imagine the same problem, deliberately weaponized.
+:::
+
+::: {.pullquote}
+"A recurrent source of errors has been misperceptions of the state of the economy, the result of incorrect assessments of the economy's productive potential."
+::: {.pullquote-attrib}
+Athanasios Orphanides
+:::
 :::
 
 <hr class="section-divider">
@@ -52,10 +127,78 @@ This is the inheritance modern central banking still carries. Now imagine the sa
 
 Through the 2010s and 2020s, central banks pushed past the slow drip of official statistics. The Bank for International Settlements has tracked the shift in its annual reports for years. Every major central bank now runs some version of a real-time nowcast pipeline. The pipelines synthesize scraped price data, credit-card transaction aggregates, job-posting feeds, satellite imagery of major ports, and social-media sentiment. They produce daily-frequency estimates of output and inflation, well before the Bureau of Labor Statistics or the Bureau of Economic Analysis publish anything official.
 
-These pipelines have a property that traditional government statistics do not. The Bureau of Labor Statistics gathers payroll data through air-gapped survey infrastructure, encrypted transfers, and rigorous internal validation. It is exceedingly difficult to tamper with payroll employment data without detection. A nowcast pipeline ingests the open web. By design.
+These pipelines have a property that traditional government statistics do not.
+:::
 
+::: {.pipeline}
+### Two ways to measure the economy
+
+::: {.pipeline-grid}
+::: {.pipeline-col .bls}
+#### Traditional · BLS / BEA
+##### Air-gapped, validated, slow
+
+- Mandatory establishment surveys
+- Encrypted transmission
+- Multi-stage internal validation
+- Blackout windows around release
+- Decades of audit infrastructure
+
+::: {.verdict}
+Hard to tamper with. Lags by weeks or months.
+:::
+:::
+
+::: {.pipeline-col .now}
+#### Real-time · Nowcast
+##### Open-web ingestion, weak validation
+
+- Web-scraped price quotes
+- Card-network aggregates
+- Job-posting feeds
+- Social-media sentiment
+- LLM-extracted earnings-call signal
+- Satellite imagery of ports
+
+::: {.verdict}
+Daily-frequency. Open to data-poisoning attacks.
+:::
+:::
+:::
+:::
+
+::: {.lede .no-dropcap}
 In 2024, the U.S. Treasury Department warned that "data poisoning, data leakage, and data integrity attacks can take place at any stage of the AI development and supply chain." The same year, a Russian information operation called Pravda showed the world the warning was concrete. The American Sunlight Project documented 3.6 million auto-generated articles published across the network in 2024 alone. The articles were not designed to be read by humans; many of the sites lacked basic functionality. They were designed to be ingested by the large-language models and search summarizers that have begun to source the open web.
+:::
 
+::: {.pravda}
+### What 3.6 million articles look like
+
+::: {.subtitle}
+Each dot represents 1,000 Pravda articles published in 2024. Highlighted dots: 92 articles cited by mainstream LLM chatbots in Newsguard's audit.
+:::
+
+```{python}
+#| echo: false
+#| output: asis
+import random
+random.seed(42)
+total = 3600
+flagged_idx = set(random.sample(range(total), 92))
+cells = []
+for i in range(total):
+    cls = "pdot flagged" if i in flagged_idx else "pdot"
+    cells.append(f'<span class="{cls}"></span>')
+print('<div class="pravda-grid">' + "".join(cells) + "</div>")
+print('<div class="legend">'
+      '<span><span class="legend-swatch" style="background:#d4d4d8"></span>Auto-generated article (1,000 each)</span>'
+      '<span><span class="legend-swatch" style="background:#c0392b"></span>Cited in chatbot audit</span>'
+      '</div>')
+```
+
+:::
+
+::: {.lede .no-dropcap}
 Newsguard ran an independent audit. Across 450 separate prompts to ten of the most popular AI chatbots, those models referenced 92 distinct Pravda articles. One in three returned Kremlin narratives directly. The Russian propagandist John Mark Dougan, on Russian state media, did not bother to obscure the strategy: "By pushing these Russian narratives from the Russian perspective, we can actually change worldwide AI."
 
 A central bank's nowcast pipeline is the same kind of system as a chatbot's retrieval layer. Less famous, consequential in a way a chatbot is not.
@@ -63,99 +206,120 @@ A central bank's nowcast pipeline is the same kind of system as a chatbot's retr
 
 <hr class="section-divider">
 
-:::::: {.cr-section}
+::: {.lede .no-dropcap style="text-align: center; margin-bottom: 0;"}
+## We modeled it.
+:::
 
-::: {#cr-realistic}
-**Start with the model the Fed actually uses.**
+::: {.scrolly}
+::: {.scrolly-narrative}
+
+::: {.scrolly-step data-state="realistic"}
+### Start with the model the Fed actually uses.
 
 The standard New Keynesian model has three equations: a Phillips curve, an Euler-equation IS curve, and a Taylor rule. The textbook version assumes households can adjust spending instantly, prices are fully forward-looking, and the central bank moves in one shot.
 
-The empirical literature has spent twenty years documenting that none of this is true. Smets and Wouters' Bayesian-estimated DSGE model, which has become the workhorse for academic macro and the Fed's own structural analysis, layers in three frictions: consumption habit (households cannot adjust on a dime), price indexation (about half of price-setters are mechanically backward-looking), and interest rate smoothing (the Fed adjusts gradually toward target).
+The empirical literature has spent twenty years documenting that none of this is true. Smets and Wouters' Bayesian-estimated DSGE model, which has become the workhorse for academic macro and the Fed's own structural analysis, layers in three frictions: consumption habit, price indexation, and interest rate smoothing.
 
-This is the model we attack.
-
-A standardized data-poisoning shock pushes the Fed's perceived output gap up by one percentage point. The Taylor rule alone would call for a hike of roughly fifty basis points. With the realistic frictions in place, the Fed instead barely moves on impact, and then begins to under-tighten over the following two years.
+A standardized data-poisoning shock pushes the Fed's perceived output gap up by one percentage point. The Taylor rule alone would call for a hike of roughly fifty basis points. Watch what actually happens.
 :::
 
-::: {#cr-cumulative}
-**The cost is what economists call welfare loss, and it more than triples.**
+::: {.scrolly-step data-state="cumulative"}
+### The cost is what economists call welfare loss, and it more than triples.
 
-Watch the three lines from quarter zero out to quarter eight. The Fed's policy rate fails to track where it should be. Inflation drifts persistently. The output gap stays open.
+The impact response barely moves. But the path keeps drifting. Watch the policy-rate panel from quarter zero out to quarter eight. The Fed undershoots, persistently, the entire window.
 
-Aggregate the deviations across all three through the standard New Keynesian welfare loss function and you get a single number. Under sustained attack with a naive Fed, the loss is `{python} naive_ratio_str` what it would be without the attack. The frictions did not defend the economy. They displaced the cost in time.
+Aggregate the deviations across the policy rate, inflation, and the output gap through the standard New Keynesian welfare loss function and you get a single number. Under sustained attack with a naive Fed, the loss is more than three times what it would be without the attack.
 
-A contemporary Fed, ingesting one bad signal, does not over-react now. It pays for two years.
+The frictions did not defend the economy. They displaced the cost in time. A contemporary Fed, ingesting one bad signal, does not over-react now. It pays for two years.
 :::
 
-::: {#cr-defended}
-**Now turn down the Fed's trust in the signal.**
+::: {.scrolly-step data-state="defended"}
+### Now turn down the Fed's trust in the signal.
 
-The model has one knob the Fed controls: the weight it places on the raw nowcast in its perception filter. At weight one, the Fed takes the signal at face value (the naive case the previous two charts showed). At weight zero, it ignores the raw signal entirely and relies only on its own model-based prior.
+The model has one knob the Fed controls: the weight it places on the raw nowcast in its perception filter. At weight one, the Fed takes the signal at face value. At weight zero, it ignores the raw signal entirely and relies only on its own model-based prior.
 
 Hold the empirical Phillips slope and Smets-Wouters habit fixed, and turn the filter weight down to ten percent. The attack response collapses by roughly a third on impact and even more cumulatively. The Fed does not need to ignore the signal entirely to defend itself; it needs to stop trusting it.
 
-The defense is not free. A Fed that down-weights its nowcast under attack also down-weights it during a real shock. The next section is about how to think about that tradeoff.
+The defense is not free. A Fed that down-weights its nowcast under attack also down-weights it during a real shock.
 :::
 
-:::{focus-on="cr-realistic"}
-```{python}
-#| label: chart-realistic
-fig = charts.irf_panel(
-    kappa=0.15, h=0.7, K_gain=1.0,
-    highlight="i",
-    annotate_signflip=False,
-    title="Smets-Wouters posterior · standardized attack shock",
-)
-fig.show()
-```
 :::
 
-:::{focus-on="cr-cumulative"}
-```{python}
-#| label: chart-cumulative
-fig = charts.irf_panel(
-    kappa=0.15, h=0.7, K_gain=1.0,
-    highlight="i",
-    annotate_signflip=False,
-    title="Smets-Wouters posterior · the eight-quarter undershoot",
-)
-fig.show()
-```
+::: {.scrolly-chart}
+::: {.scrolly-chart-inner}
+<div id="scrolly-chart" style="width:100%;height:100%;"></div>
 :::
-
-:::{focus-on="cr-defended"}
-```{python}
-#| label: chart-defended
-fig = charts.irf_panel(
-    kappa=0.15, h=0.7, K_gain=0.1,
-    highlight="i",
-    annotate_signflip=False,
-    title="Smets-Wouters posterior · Fed at filter weight 0.1",
-)
-fig.show()
-```
 :::
-
-::::::
+:::
 
 ::: {.bigstat}
-::: {.number}
-`{python} naive_ratio_str`
+::: {.number .counter data-target="3.2" data-suffix="×" data-start="1.0"}
+3.2×
 :::
 ::: {.label}
-Welfare loss under sustained attack, relative to the no-attack baseline, when the Fed treats its nowcast at face value. A defended Fed brings the ratio back to `{python} defended_ratio_str`.
+Welfare loss under sustained attack, relative to the no-attack baseline, when the Fed treats its nowcast at face value. A defended Fed brings the ratio back to 1.0×.
 :::
 ::: {.callout-source}
-Author calculations · Smets-Wouters posterior parameters · NK welfare loss L = var(π) + 0.5·var(ygap)
+Author calculations · Smets-Wouters posterior · NK welfare loss L = var(π) + 0.5·var(ygap)
 :::
 :::
 
 ```{python}
 #| label: chart-welfare-compare
 #| fig-cap: "Welfare loss with and without attack, across three Fed filter regimes. The defended regime (K = 0) eliminates the attack-induced loss entirely. The cost is that the Fed becomes less responsive to genuine real shocks, raising baseline loss modestly."
-fig = charts.welfare_compare()
-fig.show()
+charts.welfare_compare().show()
 ```
+
+<hr class="section-divider">
+
+::: {.lede}
+## Move the sliders yourself
+
+The chart below is built off the full pre-computed grid: 220 DSGE solutions across all combinations of the Phillips slope, consumption habit, and the Fed's filter weight. Drag the sliders to see how the attack response shifts.
+:::
+
+::: {#inline-explorer .inline-explorer}
+
+::: {.controls}
+::: {.control-block}
+**κ — Phillips curve slope**
+::: {.value}
+[0.15]{#explorer-kappa-val}
+:::
+<input type="range" id="explorer-kappa" min="0.06" max="0.20" step="0.01" value="0.15">
+::: {.help-text}
+Flat (0.06) is the toy memo. Empirical estimates range 0.10–0.20.
+:::
+:::
+
+::: {.control-block}
+**h — consumption habit**
+::: {.value}
+[0.7]{#explorer-h-val}
+:::
+<input type="range" id="explorer-h" min="0.0" max="0.9" step="0.1" value="0.7">
+::: {.help-text}
+Toy = 0. Smets-Wouters posterior for the US ≈ 0.70.
+:::
+:::
+
+::: {.control-block}
+**K — Fed's weight on raw signal**
+::: {.value}
+[1.0]{#explorer-K-val}
+:::
+<input type="range" id="explorer-K" min="0.0" max="1.0" step="0.1" value="1.0">
+::: {.help-text}
+1.0 = naive Fed. 0 = ignores signal, uses internal prior only.
+:::
+:::
+:::
+
+<div id="explorer-chart" style="width:100%;height:600px;"></div>
+
+::: {#explorer-readout .readout}
+:::
+:::
 
 <hr class="section-divider">
 
@@ -167,7 +331,7 @@ Svensson and Woodford showed two decades ago that when economic measurements are
 But filtering harder also means the Fed is less responsive to genuine shocks. A central bank that ignores its nowcast under attack also ignores it during a real productivity shift, a real demand shock, a real disinflation. The defense has a cost, and the size of the cost depends on what you think the probability of attack actually is.
 :::
 
-::: {.lede}
+::: {.lede .no-dropcap}
 We compute, at every parameter configuration in the grid, a crossover probability: the minimum perceived attack probability at which paying the filtering cost beats remaining naive. At the empirical Phillips slope and Smets-Wouters habit, the crossover sits around 25 percent. If you think the chance of a sustained, undetected nowcast-poisoning attack against the Fed in any given year is meaningfully above one in four, you should be filtering. If you think it is well below, you should not be.
 
 That is a question for cyber threat intelligence, not for the macroeconomist. The model can tell you the breakeven probability. It cannot tell you which side of breakeven we are on.
