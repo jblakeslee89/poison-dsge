@@ -245,6 +245,67 @@ A central bank's nowcast pipeline is the same kind of system as a chatbot's retr
 
 <hr class="section-divider">
 
+::: {.lede}
+## And the threshold is collapsing
+
+Until recently, "data poisoning at scale" sounded like a problem requiring nation-state resources. October 2025 changed that. Researchers at Anthropic, the UK AI Safety Institute, and the Alan Turing Institute published an empirical lower bound that surprised the field: the number of poisoned documents needed to plant a working backdoor in a large language model **does not grow with the size of the model.**
+:::
+
+::: {.threshold-callout}
+::: {.threshold-number}
+250
+:::
+::: {.threshold-label}
+documents.
+:::
+::: {.threshold-detail}
+That is the threshold required to backdoor a 13-billion-parameter language model. Below 250, attacks fail. Above, they succeed. The threshold is the same whether the model has 600 million parameters or 13 billion. The threshold is the same whether the training corpus is 4× compute-optimal or 100× larger.
+:::
+::: {.callout-source}
+Souly et al., October 2025 · "Poisoning Attacks on LLMs Require a Near-Constant Number of Poison Samples" · arXiv 2510.07192
+:::
+:::
+
+```{python}
+#| label: chart-souly
+charts.souly_threshold_chart().show()
+```
+
+::: {.scale-blocks}
+::: {.scale-block}
+::: {.scale-block-num}
+250
+:::
+::: {.scale-block-label}
+documents needed for a working backdoor on a 13B model.
+:::
+:::
+
+::: {.scale-block .scale-mid}
+::: {.scale-block-num}
+14,400
+:::
+::: {.scale-block-label}
+separate models that the Pravda operation produced enough material to poison in 2024 alone.
+:::
+:::
+
+::: {.scale-block .scale-warn}
+::: {.scale-block-num}
+~$200
+:::
+::: {.scale-block-label}
+estimated cost to generate 250 plausibly economic news documents using current open-weight LLMs.
+:::
+:::
+:::
+
+::: {.lede .no-dropcap}
+The implication for monetary policy is direct. A central bank ingesting scraped public-web data does not need to defend against a billion-document operation. It needs to defend against 250 deliberately placed documents in the right corner of the open web. The cost of producing them is now trivially small relative to the position size such an attack could justify.
+:::
+
+<hr class="section-divider">
+
 ::: {.lede .no-dropcap style="text-align: center; margin-bottom: 0;"}
 ## We modeled it.
 :::

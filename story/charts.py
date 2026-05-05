@@ -279,6 +279,91 @@ def welfare_compare(kappa=0.15, h=0.7):
     return fig
 
 
+def souly_threshold_chart():
+    """Bar chart: model parameter count growing 22-fold while the poison
+    threshold stays roughly constant at 250 documents.
+
+    Source: Souly, Rando, Chapman, Davies, Hasircioglu, Shereen, Mougan,
+    Mavroudis, Jones, Hicks, Carlini, Gal, Kirk (2025), "Poisoning Attacks
+    on LLMs Require a Near-constant Number of Poison Samples." arXiv:2510.07192.
+    Anthropic / UK AI Safety Institute / Alan Turing Institute.
+    """
+    sizes = ["600M parameters", "1.4B parameters", "6.9B parameters", "13B parameters"]
+    threshold = [250, 250, 250, 250]
+    # Naive expectation if poison had to scale with model size (linear):
+    naive_expectation = [250, 250 * 1400/600, 250 * 6900/600, 250 * 13000/600]
+
+    fig = go.Figure()
+
+    # Naive expectation (gray dashed)
+    fig.add_trace(go.Scatter(
+        x=sizes, y=naive_expectation,
+        mode="lines+markers",
+        line=dict(color="rgba(120,120,130,0.6)", width=2, dash="dash"),
+        marker=dict(size=8, color="rgba(120,120,130,0.6)"),
+        name="If threshold scaled with model size",
+        hovertemplate="%{x}<br>Naive expectation: %{y:,.0f} documents<extra></extra>",
+    ))
+
+    # Actual threshold (red flat)
+    fig.add_trace(go.Scatter(
+        x=sizes, y=threshold,
+        mode="lines+markers",
+        line=dict(color=RED, width=4),
+        marker=dict(size=14, color=RED, line=dict(color="white", width=2)),
+        name="What Souly et al. (2025) actually found",
+        hovertemplate="%{x}<br><b>Documents needed: %{y}</b><extra></extra>",
+    ))
+
+    # Annotations
+    fig.add_annotation(
+        x=sizes[-1], y=threshold[-1],
+        text="<b>~250 documents</b><br>regardless of model size",
+        font=dict(color=RED, size=12, family="Inter, sans-serif"),
+        xanchor="right", yanchor="bottom",
+        ax=-30, ay=-50,
+        arrowcolor=RED, arrowwidth=1.5, arrowhead=2,
+        bgcolor="rgba(255,255,255,0.92)",
+        bordercolor=RED, borderwidth=1, borderpad=8,
+    )
+    fig.add_annotation(
+        x=sizes[-1], y=naive_expectation[-1],
+        text="<b>5,400 documents</b><br>if the threshold scaled linearly",
+        font=dict(color="#666", size=11, family="Inter, sans-serif"),
+        xanchor="right", yanchor="top",
+        ax=-30, ay=40,
+        arrowcolor="#999", arrowwidth=1.2, arrowhead=2,
+        bgcolor="rgba(255,255,255,0.92)",
+        bordercolor="#bbb", borderwidth=1, borderpad=6,
+    )
+
+    fig.update_layout(
+        title=dict(
+            text="<b>The poison threshold does not grow with the model</b>",
+            font=dict(size=15, color=INK, family="Source Serif Pro, serif"),
+            x=0.02, xanchor="left", y=0.95,
+        ),
+        showlegend=True,
+        legend=dict(
+            orientation="h", yanchor="bottom", y=1.04,
+            xanchor="right", x=1,
+            font=dict(size=11.5, color=GRAY_TEXT),
+        ),
+    )
+    fig = _editorial_layout(fig, height=460)
+    fig.update_layout(showlegend=True)
+    fig.update_yaxes(
+        title_text="Number of poisoned documents needed for a working backdoor",
+        title_font=dict(size=12, color=GRAY_TEXT),
+        type="log", range=[2, 4],   # log10 from 100 to 10000
+    )
+    fig.update_xaxes(
+        title_text="",
+        tickfont=dict(size=12, color=INK),
+    )
+    return fig
+
+
 def welfare_ratios(kappa=0.15, h=0.7):
     """Welfare-loss ratio (attack/no-attack) at the realistic SW calibration."""
     def ratio_at(K_):
