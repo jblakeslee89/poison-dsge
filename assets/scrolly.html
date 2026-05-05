@@ -259,42 +259,45 @@
       ];
 
       const annotations = [
-        // Pane titles (bigger, plain English)
+        // Pane titles — anchored just above each pane in PAPER coordinates so they
+        // don't overlap an adjacent subplot. yaxis domains below: y=[0.74,1.00],
+        // y2=[0.39,0.65], y3=[0.04,0.30]. Title bottom = pane top + small gap.
         {
-          x: 0, xref: 'x domain', xanchor: 'left',
-          y: 1.05, yref: 'y domain', yanchor: 'bottom',
-          text: '<b>What the Fed does with interest rates</b><br><span style="font-size:11px;color:#888;font-weight:normal">Basis points off where they should be · 1 bp = 0.01%</span>',
-          font: {size: 14, color: '#1a1a1a', family: 'Source Serif Pro, serif'},
+          x: 0, xref: 'paper', xanchor: 'left',
+          y: 1.005, yref: 'paper', yanchor: 'bottom',
+          text: '<b>What the Fed does with interest rates</b>  <span style="font-size:11px;color:#888;font-weight:normal">Basis points off where they should be · 1 bp = 0.01%</span>',
+          font: {size: 14.5, color: '#1a1a1a', family: 'Source Serif Pro, serif'},
           showarrow: false, align: 'left',
         },
         {
-          x: 0, xref: 'x domain', xanchor: 'left',
-          y: 1.10, yref: 'y2 domain', yanchor: 'bottom',
-          text: '<b>What happens to inflation</b><br><span style="font-size:11px;color:#888;font-weight:normal">Percentage points away from the 2% target, annualized</span>',
-          font: {size: 14, color: '#1a1a1a', family: 'Source Serif Pro, serif'},
+          x: 0, xref: 'paper', xanchor: 'left',
+          y: 0.65, yref: 'paper', yanchor: 'bottom',
+          text: '<b>What happens to inflation</b>  <span style="font-size:11px;color:#888;font-weight:normal">Percentage points away from the 2% target</span>',
+          font: {size: 14.5, color: '#1a1a1a', family: 'Source Serif Pro, serif'},
           showarrow: false, align: 'left',
         },
         {
-          x: 0, xref: 'x domain', xanchor: 'left',
-          y: 1.10, yref: 'y3 domain', yanchor: 'bottom',
-          text: '<b>How much the real economy strays from potential</b><br><span style="font-size:11px;color:#888;font-weight:normal">Percentage points · negative = below capacity</span>',
-          font: {size: 14, color: '#1a1a1a', family: 'Source Serif Pro, serif'},
+          x: 0, xref: 'paper', xanchor: 'left',
+          y: 0.30, yref: 'paper', yanchor: 'bottom',
+          text: '<b>How much the real economy strays from potential</b>  <span style="font-size:11px;color:#888;font-weight:normal">Percentage points · negative = below capacity</span>',
+          font: {size: 14.5, color: '#1a1a1a', family: 'Source Serif Pro, serif'},
           showarrow: false, align: 'left',
         },
-        // Reference: textbook Taylor +50bp
+        // Reference label: textbook Taylor +50bp
         {
-          x: 15, y: 50, xref: 'x', yref: 'y',
-          text: '↑ Textbook rule says: hike 50 bp',
+          x: 14.8, y: 50, xref: 'x', yref: 'y',
+          text: '<b>↑ Textbook rule alone says: hike 50 bp</b>',
           xanchor: 'right', yanchor: 'bottom',
           font: {size: 11, color: red, family: 'Inter, sans-serif'},
           showarrow: false,
+          bgcolor: 'rgba(250,250,247,0.85)',
         },
-        // Reference: zero baseline on each panel
+        // Reference: no-attack baseline on policy-rate pane
         {
-          x: 15, y: 0, xref: 'x', yref: 'y',
-          text: 'No-attack baseline →',
-          xanchor: 'right', yanchor: 'top',
-          font: {size: 10, color: '#888', family: 'Inter, sans-serif', style: 'italic'},
+          x: 0.2, y: 0, xref: 'x', yref: 'y',
+          text: '← No-attack baseline (Fed does nothing extra)',
+          xanchor: 'left', yanchor: 'bottom',
+          font: {size: 10, color: '#888', family: 'Inter, sans-serif'},
           showarrow: false,
         },
       ];
@@ -320,23 +323,24 @@
                   showgrid: false, showline: true, linecolor: '#dcdcdc',
                   tickfont: {size: 11, color: '#666'}, anchor: 'y3',
                   matches: 'x', range: [0, 15] },
-        yaxis:  { domain: [0.70, 1.0], gridcolor: '#dcdcdc',
+        // Three independent y axes; bigger gaps between panes so titles don't collide.
+        yaxis:  { domain: [0.74, 1.00], gridcolor: '#dcdcdc',
                   zeroline: true, zerolinecolor: '#888', zerolinewidth: 1.5,
                   tickfont: {size: 11, color: '#666'},
                   range: [-25, 60], ticksuffix: ' bp' },
-        yaxis2: { domain: [0.36, 0.66], gridcolor: '#dcdcdc',
+        yaxis2: { domain: [0.39, 0.65], gridcolor: '#dcdcdc',
                   zeroline: true, zerolinecolor: '#888', zerolinewidth: 1.5,
                   tickfont: {size: 11, color: '#666'},
                   ticksuffix: ' pp' },
-        yaxis3: { domain: [0.0, 0.32],  gridcolor: '#dcdcdc',
+        yaxis3: { domain: [0.04, 0.30], gridcolor: '#dcdcdc',
                   zeroline: true, zerolinecolor: '#888', zerolinewidth: 1.5,
                   tickfont: {size: 11, color: '#666'},
                   ticksuffix: ' pp' },
         showlegend: false,
         paper_bgcolor: '#fafaf7',
         plot_bgcolor: '#fafaf7',
-        height: 680,
-        margin: { l: 70, r: 30, t: 40, b: 60 },
+        height: 720,
+        margin: { l: 80, r: 40, t: 40, b: 60 },
         font: { family: 'Inter, -apple-system, sans-serif', color: '#1a1a1a' },
         transition: { duration: 400, easing: 'cubic-in-out' },
         annotations,
