@@ -278,48 +278,32 @@ charts.welfare_compare().show()
 The chart below is built off the full pre-computed grid: 220 DSGE solutions across all combinations of the Phillips slope, consumption habit, and the Fed's filter weight. Drag the sliders to see how the attack response shifts.
 :::
 
-::: {#inline-explorer .inline-explorer}
-
-::: {.controls}
-::: {.control-block}
-**κ — Phillips curve slope**
-::: {.value}
-[0.15]{#explorer-kappa-val}
-:::
-<input type="range" id="explorer-kappa" min="0.06" max="0.20" step="0.01" value="0.15">
-::: {.help-text}
-Flat (0.06) is the toy memo. Empirical estimates range 0.10–0.20.
-:::
-:::
-
-::: {.control-block}
-**h — consumption habit**
-::: {.value}
-[0.7]{#explorer-h-val}
-:::
-<input type="range" id="explorer-h" min="0.0" max="0.9" step="0.1" value="0.7">
-::: {.help-text}
-Toy = 0. Smets-Wouters posterior for the US ≈ 0.70.
-:::
-:::
-
-::: {.control-block}
-**K — Fed's weight on raw signal**
-::: {.value}
-[1.0]{#explorer-K-val}
-:::
-<input type="range" id="explorer-K" min="0.0" max="1.0" step="0.1" value="1.0">
-::: {.help-text}
-1.0 = naive Fed. 0 = ignores signal, uses internal prior only.
-:::
-:::
-:::
-
-<div id="explorer-chart" style="width:100%;height:600px;"></div>
-
-::: {#explorer-readout .readout}
-:::
-:::
+```{=html}
+<div id="inline-explorer" class="inline-explorer">
+  <div class="controls">
+    <div class="control-block">
+      <label>κ — Phillips curve slope</label>
+      <div class="value"><span id="explorer-kappa-val">0.15</span></div>
+      <input type="range" id="explorer-kappa" min="0.06" max="0.20" step="0.01" value="0.15">
+      <div class="help-text">Flat (0.06) is the toy memo. Empirical estimates range 0.10–0.20.</div>
+    </div>
+    <div class="control-block">
+      <label>h — consumption habit</label>
+      <div class="value"><span id="explorer-h-val">0.7</span></div>
+      <input type="range" id="explorer-h" min="0.0" max="0.9" step="0.1" value="0.7">
+      <div class="help-text">Toy = 0. Smets-Wouters posterior for the US ≈ 0.70.</div>
+    </div>
+    <div class="control-block">
+      <label>K — Fed's weight on raw signal</label>
+      <div class="value"><span id="explorer-K-val">1.0</span></div>
+      <input type="range" id="explorer-K" min="0.0" max="1.0" step="0.1" value="1.0">
+      <div class="help-text">1.0 = naive Fed. 0 = ignores signal, uses internal prior only.</div>
+    </div>
+  </div>
+  <div id="explorer-chart" style="width:100%;height:600px;"></div>
+  <div id="explorer-readout" class="readout"></div>
+</div>
+```
 
 <hr class="section-divider">
 
