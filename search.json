@@ -56,6 +56,13 @@
     "text": "A new kind of attack surface\nThrough the 2010s and 2020s, central banks pushed past the slow drip of official statistics. The Bank for International Settlements has tracked the shift in its annual reports for years. Every major central bank now runs some version of a real-time nowcast pipeline. The pipelines synthesize scraped price data, credit-card transaction aggregates, job-posting feeds, satellite imagery of major ports, and social-media sentiment. They produce daily-frequency estimates of output and inflation, well before the Bureau of Labor Statistics or the Bureau of Economic Analysis publish anything official.\nThese pipelines have a property that traditional government statistics do not."
   },
   {
+    "objectID": "index.html#and-the-threshold-is-collapsing",
+    "href": "index.html#and-the-threshold-is-collapsing",
+    "title": "If you can fool the Fed’s nowcast, you can move tens of billions of dollars.",
+    "section": "And the threshold is collapsing",
+    "text": "And the threshold is collapsing\nUntil recently, “data poisoning at scale” sounded like a problem requiring nation-state resources. October 2025 changed that. Researchers at Anthropic, the UK AI Safety Institute, and the Alan Turing Institute published an empirical lower bound that surprised the field: the number of poisoned documents needed to plant a working backdoor in a large language model does not grow with the size of the model."
+  },
+  {
     "objectID": "index.html#we-modeled-it.",
     "href": "index.html#we-modeled-it.",
     "title": "If you can fool the Fed’s nowcast, you can move tens of billions of dollars.",
