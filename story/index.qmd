@@ -167,6 +167,45 @@ Daily-frequency. Open to data-poisoning attacks.
 :::
 :::
 
+```{=html}
+<div class="banks">
+  <h3>Where this matters</h3>
+  <div class="subtitle">A non-exhaustive map of central-bank nowcast and big-data programs documented in BIS annual reports 2020–2024.</div>
+  <div class="banks-grid">
+    <div class="bank-card">
+      <div class="bank-name">Federal Reserve</div>
+      <div class="bank-program">FRBNY Nowcast</div>
+      <div class="bank-detail">Real-time GDP signal from a dynamic factor model with high-frequency inputs.</div>
+    </div>
+    <div class="bank-card">
+      <div class="bank-name">European Central Bank</div>
+      <div class="bank-program">BEAR · BBE Nowcast</div>
+      <div class="bank-detail">Bayesian VAR plus big-data inflation indicators ingesting scanner-price feeds.</div>
+    </div>
+    <div class="bank-card">
+      <div class="bank-name">Bank of England</div>
+      <div class="bank-program">Nowcast Suite</div>
+      <div class="bank-detail">Mixed-frequency model combining card-spend feeds and Companies House data.</div>
+    </div>
+    <div class="bank-card">
+      <div class="bank-name">Bank of Japan</div>
+      <div class="bank-program">UTokyo Daily Price Project</div>
+      <div class="bank-detail">Web-scraped point-of-sale prices feeding into a daily inflation indicator.</div>
+    </div>
+    <div class="bank-card">
+      <div class="bank-name">Riksbank · Sweden</div>
+      <div class="bank-program">SEB Nowcaster</div>
+      <div class="bank-detail">Cross-references VAR output gap estimates with real-time payment flows.</div>
+    </div>
+    <div class="bank-card">
+      <div class="bank-name">Bank for Int'l Settlements</div>
+      <div class="bank-program">BIS Big Data Initiative</div>
+      <div class="bank-detail">Coordinates AI/ML inputs, supply-chain text feeds, and satellite indicators.</div>
+    </div>
+  </div>
+</div>
+```
+
 ::: {.lede .no-dropcap}
 In 2024, the U.S. Treasury Department warned that "data poisoning, data leakage, and data integrity attacks can take place at any stage of the AI development and supply chain." The same year, a Russian information operation called Pravda showed the world the warning was concrete. The American Sunlight Project documented 3.6 million auto-generated articles published across the network in 2024 alone. The articles were not designed to be read by humans; many of the sites lacked basic functionality. They were designed to be ingested by the large-language models and search summarizers that have begun to source the open web.
 :::
