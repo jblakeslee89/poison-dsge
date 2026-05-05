@@ -72,7 +72,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-d4d76bf8491c20bad77d141916dc28e1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-501c53cd91936ddaa4b03ca9d70ae33c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-9ffa68539164a4e28e3d218fc6f22081.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -308,10 +308,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     function setState(stateKey) {
       const fig = window.SCROLLY_STATES[stateKey];
       if (!fig || !window.Plotly) return;
-      // Use Plotly.react for smooth morph (same trace count → animated transition)
       window.Plotly.react(chartDiv, fig.data, fig.layout, fig.config || {responsive: true, displayModeBar: false})
         .then(() => {
-          // Add a subtle transition by re-running animate
           if (window.Plotly.animate) {
             window.Plotly.animate(chartDiv, {data: fig.data, layout: fig.layout},
               {transition: {duration: 600, easing: 'cubic-in-out'},
@@ -320,11 +318,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         });
     }
 
-    // Initialize with the first state immediately
     const initialKey = steps[0]?.dataset?.state;
     if (initialKey) setState(initialKey);
 
-    // IntersectionObserver: trigger when each step is centered in the viewport
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -363,7 +359,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           const startT = performance.now();
           function tick(now) {
             const t = Math.min(1, (now - startT) / duration);
-            // Easing
             const eased = 1 - Math.pow(1 - t, 3);
             const v = start + (target - start) * eased;
             counter.textContent = v.toFixed(1) + suffix;
@@ -383,7 +378,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   function initExplorer() {
     const root = document.getElementById('inline-explorer');
     if (!root || !window.EXPLORER_DATA) return;
-    const data = window.EXPLORER_DATA; // {grid: {kappa: [...], h: [...], K: [...]}, irf: {key: {i: [...], pi: [...], ygap: [...]}}}
+    const data = window.EXPLORER_DATA;
     const chartDiv = document.getElementById('explorer-chart');
     const kappaInput = root.querySelector('#explorer-kappa');
     const hInput = root.querySelector('#explorer-h');
@@ -391,10 +386,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     const kappaVal = root.querySelector('#explorer-kappa-val');
     const hVal = root.querySelector('#explorer-h-val');
     const KVal = root.querySelector('#explorer-K-val');
+    const kappaTag = root.querySelector('#explorer-kappa-tag');
+    const hTag = root.querySelector('#explorer-h-tag');
+    const KTag = root.querySelector('#explorer-K-tag');
     const readout = root.querySelector('#explorer-readout');
+    const presetButtons = root.querySelectorAll('.explorer-preset');
 
     function fmt(x, n) { return Number(x).toFixed(n); }
-
     function nearest(arr, v) {
       let best = arr[0], bd = Math.abs(arr[0]-v);
       for (let i = 1; i < arr.length; i++) {
@@ -404,6 +402,114 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       return best;
     }
 
+    function tagFor(name, value) {
+      if (name === 'kappa') {
+        if (value <= 0.07) return 'sluggish';
+        if (value <= 0.12) return 'moderate';
+        if (value <= 0.17) return 'realistic';
+        return 'quick';
+      }
+      if (name === 'h') {
+        if (value <= 0.1) return 'instant';
+        if (value <= 0.4) return 'low stickiness';
+        if (value <= 0.7) return 'realistic';
+        return 'very sticky';
+      }
+      if (name === 'K') {
+        if (value >= 0.85) return 'naive';
+        if (value >= 0.5) return 'partial trust';
+        if (value >= 0.05) return 'light filter';
+        return 'full defense';
+      }
+      return '';
+    }
+
+    function applyPreset(kappa, h, K) {
+      kappaInput.value = String(kappa);
+      hInput.value = String(h);
+      KInput.value = String(K);
+      update();
+    }
+
+    presetButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        applyPreset(
+          parseFloat(btn.dataset.kappa),
+          parseFloat(btn.dataset.h),
+          parseFloat(btn.dataset.k)
+        );
+      });
+    });
+
+    function setActivePreset(K) {
+      presetButtons.forEach(btn => {
+        const btnK = parseFloat(btn.dataset.k);
+        const sameK = Math.abs(btnK - K) < 0.05;
+        const sameKappa = Math.abs(parseFloat(btn.dataset.kappa) - parseFloat(kappaInput.value)) < 0.02;
+        const sameH = Math.abs(parseFloat(btn.dataset.h) - parseFloat(hInput.value)) < 0.05;
+        btn.classList.toggle('is-active', sameK && sameKappa && sameH);
+      });
+    }
+
+    function buildReadout(k, h, K, series) {
+      const i0 = series.i[0];
+      const i_cum8 = series.i.slice(0, 8).reduce((a,b)=>a+b, 0);
+      const pi_max_dev = Math.min(...series.pi); // most negative inflation deviation
+      const pi_max_abs = Math.max(...series.pi.map(Math.abs));
+      const ygap_min = Math.min(...series.ygap);
+
+      // Scenario tag
+      let scenarioTag, scenarioClass;
+      if (K >= 0.85) { scenarioTag = 'A naive Fed under attack'; scenarioClass = 'warn'; }
+      else if (K >= 0.5) { scenarioTag = 'A partially trusting Fed'; scenarioClass = 'warn'; }
+      else if (K >= 0.05) { scenarioTag = 'A lightly defended Fed'; scenarioClass = ''; }
+      else { scenarioTag = 'A fully defended Fed'; scenarioClass = 'ok'; }
+
+      // Plain-English impact
+      const i0Abs = Math.abs(i0);
+      let impactDesc;
+      if (i0Abs < 0.5) impactDesc = `barely moves rates (under 1 bp).`;
+      else if (i0 < 0)  impactDesc = `<em>cuts</em> rates by ${fmt(i0Abs, 1)} bp.`;
+      else              impactDesc = `hikes rates by ${fmt(i0Abs, 1)} bp.`;
+
+      // Cumulative direction
+      const cumAbs = Math.abs(i_cum8);
+      let cumDesc;
+      if (cumAbs < 5) cumDesc = `barely drifts (under 5 bp total over two years).`;
+      else if (i_cum8 < 0) cumDesc = `<span class="num">undershoots by ${fmt(cumAbs, 0)} bp</span> over the next two years.`;
+      else cumDesc = `<span class="num">overshoots by ${fmt(cumAbs, 0)} bp</span> over the next two years.`;
+
+      // Inflation framing
+      let inflDesc;
+      if (pi_max_abs < 0.1) inflDesc = `barely budges (less than a tenth of a percentage point).`;
+      else if (pi_max_dev < -0.3) inflDesc = `runs <span class="num">${fmt(pi_max_abs, 2)} pp below target</span> at the trough.`;
+      else if (pi_max_dev < 0)  inflDesc = `dips ${fmt(pi_max_abs, 2)} pp below target.`;
+      else inflDesc = `runs ${fmt(pi_max_abs, 2)} pp above target.`;
+
+      // Output gap framing
+      const ygapAbs = Math.abs(ygap_min);
+      let ygapDesc;
+      if (ygapAbs < 0.05) ygapDesc = `essentially unchanged.`;
+      else ygapDesc = `the real economy operates roughly <span class="num">${fmt(ygapAbs, 2)} pp below potential</span> at the trough.`;
+
+      // Verdict
+      let verdict;
+      if (K >= 0.85)  verdict = `The Fed is <strong>fooled</strong>: the attack moves real outcomes for two years before the signal fades. This is the textbook case for the cyber-defense investment.`;
+      else if (K >= 0.5) verdict = `Even partial trust leaves a substantial attack channel. This is not enough defense.`;
+      else if (K >= 0.05) verdict = `A light filter <strong>absorbs most of the attack</strong>. Cost: the Fed is also slower to respond to genuine shocks.`;
+      else verdict = `<strong>Defense works</strong>. The attack is fully neutralized. Cost: the Fed becomes less responsive to real economic shifts.`;
+
+      return `
+        <div class="scenario-tag ${scenarioClass}">${scenarioTag}</div>
+        <div style="margin-bottom: 14px;"><strong>What happens when the attacker slips a +1 percentage-point fake signal into the Fed's data feed:</strong></div>
+        <div class="stat-line"><span class="stat-icon">⚡</span><span><strong>Right away:</strong> The Fed ${impactDesc} <span style="color:#888;font-size:0.92em;">(Textbook rule alone says +50 bp.)</span></span></div>
+        <div class="stat-line"><span class="stat-icon">📉</span><span><strong>Over two years:</strong> The Fed ${cumDesc}</span></div>
+        <div class="stat-line"><span class="stat-icon">💸</span><span><strong>Inflation:</strong> ${inflDesc}</span></div>
+        <div class="stat-line"><span class="stat-icon">🏭</span><span><strong>Output gap:</strong> ${ygapDesc}</span></div>
+        <div style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed #c8c8d0;">${verdict}</div>
+      `;
+    }
+
     function update() {
       const k = nearest(data.grid.kappa, parseFloat(kappaInput.value));
       const h = nearest(data.grid.h, parseFloat(hInput.value));
@@ -411,55 +517,134 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       kappaVal.textContent = fmt(k, 2);
       hVal.textContent = fmt(h, 1);
       KVal.textContent = fmt(K, 2);
+      kappaTag.textContent = tagFor('kappa', k);
+      hTag.textContent = tagFor('h', h);
+      KTag.textContent = tagFor('K', K);
       const key = `${fmt(k,2)}|${fmt(h,1)}|${fmt(K,1)}`;
       const series = data.irf[key];
       if (!series) {
-        readout.textContent = 'No data at this configuration.';
+        readout.innerHTML = '<em>No data at this configuration.</em>';
         return;
       }
       const x = series.i.map((_, idx) => idx);
       const navy = '#1f3a5f';
       const dim = 'rgba(31,58,95,0.30)';
+      const red = '#c0392b';
+      const grayLight = '#e8e8eb';
+
       const traces = [
+        // Pane 1: Policy rate
         { x, y: series.i, mode: 'lines', line: {color: navy, width: 3.5},
-          name: 'Policy rate (bp)', xaxis: 'x', yaxis: 'y' },
-        { x, y: series.pi, mode: 'lines', line: {color: dim, width: 2},
-          name: 'Inflation (pp annualized)', xaxis: 'x', yaxis: 'y2' },
-        { x, y: series.ygap, mode: 'lines', line: {color: dim, width: 2},
-          name: 'Output gap (pp)', xaxis: 'x', yaxis: 'y3' },
+          name: 'Fed rate response',
+          hovertemplate: 'Quarter %{x}<br><b>Fed moves rates by</b> %{y:.1f} bp<extra></extra>',
+          xaxis: 'x', yaxis: 'y' },
+        // Pane 2: Inflation
+        { x, y: series.pi, mode: 'lines', line: {color: navy, width: 3},
+          name: 'Inflation deviation',
+          hovertemplate: 'Quarter %{x}<br><b>Inflation off target by</b> %{y:.2f} pp<extra></extra>',
+          xaxis: 'x', yaxis: 'y2' },
+        // Pane 3: Output gap
+        { x, y: series.ygap, mode: 'lines', line: {color: navy, width: 3},
+          name: 'Output gap',
+          hovertemplate: 'Quarter %{x}<br><b>Real economy off potential by</b> %{y:.2f} pp<extra></extra>',
+          xaxis: 'x', yaxis: 'y3' },
       ];
-      const i0 = series.i[0];
-      const i_cum8 = series.i.slice(0, 8).reduce((a,b)=>a+b, 0);
+
+      const annotations = [
+        // Pane titles (bigger, plain English)
+        {
+          x: 0, xref: 'x domain', xanchor: 'left',
+          y: 1.05, yref: 'y domain', yanchor: 'bottom',
+          text: '<b>What the Fed does with interest rates</b><br><span style="font-size:11px;color:#888;font-weight:normal">Basis points off where they should be · 1 bp = 0.01%</span>',
+          font: {size: 14, color: '#1a1a1a', family: 'Source Serif Pro, serif'},
+          showarrow: false, align: 'left',
+        },
+        {
+          x: 0, xref: 'x domain', xanchor: 'left',
+          y: 1.10, yref: 'y2 domain', yanchor: 'bottom',
+          text: '<b>What happens to inflation</b><br><span style="font-size:11px;color:#888;font-weight:normal">Percentage points away from the 2% target, annualized</span>',
+          font: {size: 14, color: '#1a1a1a', family: 'Source Serif Pro, serif'},
+          showarrow: false, align: 'left',
+        },
+        {
+          x: 0, xref: 'x domain', xanchor: 'left',
+          y: 1.10, yref: 'y3 domain', yanchor: 'bottom',
+          text: '<b>How much the real economy strays from potential</b><br><span style="font-size:11px;color:#888;font-weight:normal">Percentage points · negative = below capacity</span>',
+          font: {size: 14, color: '#1a1a1a', family: 'Source Serif Pro, serif'},
+          showarrow: false, align: 'left',
+        },
+        // Reference: textbook Taylor +50bp
+        {
+          x: 15, y: 50, xref: 'x', yref: 'y',
+          text: '↑ Textbook rule says: hike 50 bp',
+          xanchor: 'right', yanchor: 'bottom',
+          font: {size: 11, color: red, family: 'Inter, sans-serif'},
+          showarrow: false,
+        },
+        // Reference: zero baseline on each panel
+        {
+          x: 15, y: 0, xref: 'x', yref: 'y',
+          text: 'No-attack baseline →',
+          xanchor: 'right', yanchor: 'top',
+          font: {size: 10, color: '#888', family: 'Inter, sans-serif', style: 'italic'},
+          showarrow: false,
+        },
+      ];
+
+      const shapes = [
+        // Textbook Taylor +50bp reference line on policy rate panel
+        {
+          type: 'line', xref: 'x', yref: 'y',
+          x0: 0, x1: 15, y0: 50, y1: 50,
+          line: {color: red, width: 1.4, dash: 'dash'},
+        },
+      ];
+
       const layout = {
         grid: { rows: 3, columns: 1, pattern: 'independent' },
-        xaxis:  { title: '',                    showgrid: false, showline: true, linecolor: '#dcdcdc', tickfont: {size: 11, color: '#666'}, domain: [0,1], anchor: 'y3' },
-        xaxis2: { showgrid: false, showline: true, linecolor: '#dcdcdc', tickfont: {size: 11, color: '#666'}, anchor: 'y2', matches: 'x' },
-        xaxis3: { title: 'Quarters after attack', showgrid: false, showline: true, linecolor: '#dcdcdc', tickfont: {size: 11, color: '#666'}, anchor: 'y3', matches: 'x' },
-        yaxis:  { title: 'Policy rate (bp)', domain: [0.70, 1.0], gridcolor: '#dcdcdc', zeroline: true, zerolinecolor: '#888', tickfont: {size: 11, color: '#666'} },
-        yaxis2: { title: 'Inflation (pp ann.)', domain: [0.36, 0.66], gridcolor: '#dcdcdc', zeroline: true, zerolinecolor: '#888', tickfont: {size: 11, color: '#666'} },
-        yaxis3: { title: 'Output gap (pp)', domain: [0.0, 0.32],  gridcolor: '#dcdcdc', zeroline: true, zerolinecolor: '#888', tickfont: {size: 11, color: '#666'} },
+        xaxis:  { showgrid: false, showline: true, linecolor: '#dcdcdc',
+                  tickfont: {size: 11, color: '#666'}, anchor: 'y',
+                  range: [0, 15] },
+        xaxis2: { showgrid: false, showline: true, linecolor: '#dcdcdc',
+                  tickfont: {size: 11, color: '#666'}, anchor: 'y2',
+                  matches: 'x', range: [0, 15] },
+        xaxis3: { title: { text: 'Quarters after the attack', font: {size: 12, color: '#666'} },
+                  showgrid: false, showline: true, linecolor: '#dcdcdc',
+                  tickfont: {size: 11, color: '#666'}, anchor: 'y3',
+                  matches: 'x', range: [0, 15] },
+        yaxis:  { domain: [0.70, 1.0], gridcolor: '#dcdcdc',
+                  zeroline: true, zerolinecolor: '#888', zerolinewidth: 1.5,
+                  tickfont: {size: 11, color: '#666'},
+                  range: [-25, 60], ticksuffix: ' bp' },
+        yaxis2: { domain: [0.36, 0.66], gridcolor: '#dcdcdc',
+                  zeroline: true, zerolinecolor: '#888', zerolinewidth: 1.5,
+                  tickfont: {size: 11, color: '#666'},
+                  ticksuffix: ' pp' },
+        yaxis3: { domain: [0.0, 0.32],  gridcolor: '#dcdcdc',
+                  zeroline: true, zerolinecolor: '#888', zerolinewidth: 1.5,
+                  tickfont: {size: 11, color: '#666'},
+                  ticksuffix: ' pp' },
         showlegend: false,
         paper_bgcolor: '#fafaf7',
         plot_bgcolor: '#fafaf7',
-        height: 600,
-        margin: { l: 70, r: 30, t: 30, b: 50 },
+        height: 680,
+        margin: { l: 70, r: 30, t: 40, b: 60 },
         font: { family: 'Inter, -apple-system, sans-serif', color: '#1a1a1a' },
         transition: { duration: 400, easing: 'cubic-in-out' },
+        annotations,
+        shapes,
+        hovermode: 'x unified',
       };
-      window.Plotly.react(chartDiv, traces, layout, {responsive: true, displayModeBar: false});
 
-      const direction = (i0 < 0) ? 'cuts' : (i0 > 0 ? 'hikes' : 'holds');
-      const cumWord = i_cum8 < -10 ? 'undershoots' : (i_cum8 > 10 ? 'overshoots' : 'tracks closely');
-      readout.innerHTML =
-        `<strong>Impact (Q0):</strong> Fed ${direction} by ${fmt(Math.abs(i0),1)} bp. ` +
-        `<strong>8-quarter cumulative:</strong> Fed ${cumWord} by ${fmt(Math.abs(i_cum8), 1)} bp.`;
+      window.Plotly.react(chartDiv, traces, layout, {responsive: true, displayModeBar: false});
+      readout.innerHTML = buildReadout(k, h, K, series);
+      setActivePreset(K);
     }
 
     [kappaInput, hInput, KInput].forEach(el => el.addEventListener('input', update));
     update();
   }
 
-  // Run after DOM and Plotly are ready
   function ready(fn) {
     if (document.readyState !== 'loading') fn();
     else document.addEventListener('DOMContentLoaded', fn);
