@@ -62,7 +62,7 @@ def _editorial_layout(fig, height=720):
             family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
             color=INK, size=13,
         ),
-        margin=dict(l=70, r=40, t=70, b=60),
+        margin=dict(l=70, r=40, t=100, b=60),
         hoverlabel=dict(bgcolor="white", font_size=12, font_family="sans-serif"),
         showlegend=False,
         transition=dict(duration=600, easing="cubic-in-out"),
@@ -161,7 +161,8 @@ def _scrolly_chart(kappa, h, K, *,
         fig.update_layout(title=dict(
             text=f"<span style='font-size:11px;color:{GRAY_TEXT};letter-spacing:0.05em;text-transform:uppercase'>{kicker}</span><br>"
                  f"<span style='font-family:Source Serif Pro,serif;font-size:18px;color:{INK}'>{title}</span>",
-            x=0.02, xanchor="left", y=0.98, yanchor="top",
+            x=0.02, xanchor="left", y=0.97, yanchor="top",
+            pad=dict(t=8),
         ))
     return fig
 
