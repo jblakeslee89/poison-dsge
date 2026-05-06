@@ -46,7 +46,7 @@
     "href": "index.html",
     "title": "If you can fool the Fed’s nowcast, you can move tens of billions of dollars.",
     "section": "",
-    "text": ":::\nWelfare loss with and without attack, across three Fed filter regimes. The defended regime (K = 0) eliminates the attack-induced loss entirely. The cost is that the Fed becomes less responsive to genuine real shocks, raising baseline loss modestly."
+    "text": "Welfare loss with and without attack, across three Fed filter regimes. The defended regime (K = 0) eliminates the attack-induced loss entirely. The cost is that the Fed becomes less responsive to genuine real shocks, raising baseline loss modestly."
   },
   {
     "objectID": "index.html#a-new-kind-of-attack-surface",
