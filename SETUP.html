@@ -72,7 +72,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-d4d76bf8491c20bad77d141916dc28e1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-fa0be342797a0859f76e07859f7b2f6e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-638c907806b28fb77666d33ec5cbf3fd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -499,13 +499,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       else if (K >= 0.05) verdict = `A light filter <strong>absorbs most of the attack</strong>. Cost: the Fed is also slower to respond to genuine shocks.`;
       else verdict = `<strong>Defense works</strong>. The attack is fully neutralized. Cost: the Fed becomes less responsive to real economic shifts.`;
 
+      // Sleek inline SVG icons (16px, 1.6 stroke). Filled with currentColor so
+      // CSS color rules apply uniformly in the readout.
+      const ICON_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>';
+      const ICON_TREND = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 9 12 13 8 21 17"/><polyline points="14 17 21 17 21 10"/></svg>';
+      const ICON_PERCENT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>';
+      const ICON_BARS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="14"/></svg>';
+
       return `
         <div class="scenario-tag ${scenarioClass}">${scenarioTag}</div>
         <div style="margin-bottom: 14px;"><strong>What happens when the attacker slips a +1 percentage-point fake signal into the Fed's data feed:</strong></div>
-        <div class="stat-line"><span class="stat-icon">⚡</span><span><strong>Right away:</strong> The Fed ${impactDesc} <span style="color:#888;font-size:0.92em;">(Textbook rule alone says +50 bp.)</span></span></div>
-        <div class="stat-line"><span class="stat-icon">📉</span><span><strong>Over two years:</strong> The Fed ${cumDesc}</span></div>
-        <div class="stat-line"><span class="stat-icon">💸</span><span><strong>Inflation:</strong> ${inflDesc}</span></div>
-        <div class="stat-line"><span class="stat-icon">🏭</span><span><strong>Output gap:</strong> ${ygapDesc}</span></div>
+        <div class="stat-line"><span class="stat-icon">${ICON_CLOCK}</span><span><strong>Right away:</strong> The Fed ${impactDesc} <span style="color:#888;font-size:0.92em;">(Textbook rule alone says +50 bp.)</span></span></div>
+        <div class="stat-line"><span class="stat-icon">${ICON_TREND}</span><span><strong>Over two years:</strong> The Fed ${cumDesc}</span></div>
+        <div class="stat-line"><span class="stat-icon">${ICON_PERCENT}</span><span><strong>Inflation:</strong> ${inflDesc}</span></div>
+        <div class="stat-line"><span class="stat-icon">${ICON_BARS}</span><span><strong>Output gap:</strong> ${ygapDesc}</span></div>
         <div style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed #c8c8d0;">${verdict}</div>
       `;
     }
@@ -631,8 +638,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         showlegend: false,
         paper_bgcolor: '#fafaf7',
         plot_bgcolor: '#fafaf7',
-        height: 720,
-        margin: { l: 80, r: 40, t: 40, b: 60 },
+        height: 760,
+        margin: { l: 80, r: 40, t: 70, b: 60 },
         font: { family: 'Inter, -apple-system, sans-serif', color: '#1a1a1a' },
         transition: { duration: 400, easing: 'cubic-in-out' },
         annotations,
