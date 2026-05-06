@@ -370,11 +370,18 @@
   }
 
   function whenPlotlyReady(fn) {
-    if (window.Plotly) return fn();
+    function ensure() {
+      // Quarto loads Plotly via RequireJS and stores it on window._Plotly.
+      // Mirror it onto window.Plotly so the rest of this script (and any
+      // future scripts) can use the standard global.
+      if (!window.Plotly && window._Plotly) window.Plotly = window._Plotly;
+      return !!window.Plotly;
+    }
+    if (ensure()) return fn();
     let tries = 0;
     const t = setInterval(() => {
-      if (window.Plotly) { clearInterval(t); fn(); }
-      if (++tries > 200) clearInterval(t);
+      if (ensure()) { clearInterval(t); fn(); }
+      if (++tries > 400) clearInterval(t);
     }, 50);
   }
 
