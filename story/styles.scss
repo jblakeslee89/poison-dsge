@@ -837,13 +837,6 @@ footer.story-footer a {
   font-style: italic;
 }
 
-.inline-explorer .readout {
-  margin-top: 20px;
-  padding: 14px 18px;
-  background: #f9fafc;
-  border-left: 2px solid #1f3a5f;
-  font-family: $font-family-sans-serif;
-  font-size: 0.95rem;
-  color: #333;
-  line-height: 1.55;
-}
+/* (Old explorer-readout block removed — superseded by the styled readout
+ * defined earlier in this file with the scenario-tag pill, statlines, and
+ * verdict layout.) */
